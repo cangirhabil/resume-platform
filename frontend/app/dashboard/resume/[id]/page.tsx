@@ -192,8 +192,8 @@ export default function ResumeDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-500 mb-4" />
-        <p className="text-zinc-400">Loading resume...</p>
+        <Loader2 className="h-10 w-10 animate-spin text-fab-red mb-4" />
+        <p className="text-[var(--muted-foreground)]">Loading resume...</p>
       </div>
     )
   }
@@ -205,31 +205,31 @@ export default function ResumeDetailPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-white">{resume?.original_filename}</h2>
-          <p className="text-zinc-400 text-sm">Resume Analysis & Enhancement</p>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">{resume?.original_filename}</h2>
+          <p className="text-[var(--muted-foreground)] text-sm">Resume Analysis & Enhancement</p>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/dashboard/settings">
-            <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+            <Button variant="outline" className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface)]">
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </Button>
           </Link>
-          <Button variant="outline" onClick={() => fetchResume()} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+          <Button variant="outline" onClick={() => fetchResume()} className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface)]">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <div className={`px-3 py-1 rounded-full text-sm ${
             resume?.status === "completed" ? "bg-green-900/50 text-green-400" :
             resume?.status === "failed" ? "bg-red-900/50 text-red-400" :
-            resume?.status === "waiting_input" ? "bg-indigo-900/50 text-indigo-400" :
-            "bg-zinc-800 text-zinc-300"
+            resume?.status === "waiting_input" ? "bg-fab-red/10 text-fab-red" :
+            "bg-[var(--surface)] text-[var(--foreground)]"
           }`}>
             Status: {resume?.status?.replace("_", " ")}
           </div>
           {resume?.status === "completed" && (
             <div className="flex gap-2">
-              <Button onClick={() => handleDownload("pdf")} className="bg-green-600 hover:bg-green-700 text-white gap-2">
+              <Button onClick={() => handleDownload("pdf")} className="bg-green-600 hover:bg-green-700 text-[var(--foreground)] gap-2">
                 <Download className="h-4 w-4" />
                 PDF
               </Button>
@@ -273,51 +273,51 @@ export default function ResumeDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Col: Analysis Report */}
         <div className="space-y-6">
-          <Card className="bg-zinc-900 border-zinc-800">
+          <Card className="bg-[var(--card)] border-[var(--border)]">
             <CardHeader>
-              <CardTitle className="text-white">Analysis Report</CardTitle>
+              <CardTitle className="text-[var(--foreground)]">Analysis Report</CardTitle>
               <CardDescription>
-                Score: <span className="text-indigo-400 font-bold text-lg">{resume?.analysis_result?.score || "N/A"}</span>/100
+                Score: <span className="text-fab-red font-bold text-lg">{resume?.analysis_result?.score || "N/A"}</span>/100
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-zinc-300 space-y-4">
+            <CardContent className="text-[var(--foreground)] space-y-4">
               {resume?.status === "analyzing" ? (
                 <div className="flex flex-col items-center py-8">
-                  <Loader2 className="animate-spin h-8 w-8 text-indigo-500 mb-2"/>
+                  <Loader2 className="animate-spin h-8 w-8 text-fab-red mb-2"/>
                   <p>Analyzing document structure and content...</p>
-                  <p className="text-xs text-zinc-500 mt-2">This may take a minute</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-2">This may take a minute</p>
                 </div>
               ) : resume?.status === "generating" ? (
                 <div className="flex flex-col items-center py-8">
-                  <Loader2 className="animate-spin h-8 w-8 text-indigo-500 mb-2"/>
+                  <Loader2 className="animate-spin h-8 w-8 text-fab-red mb-2"/>
                   <p>Generating enhanced resume...</p>
-                  <p className="text-xs text-zinc-500 mt-2">Creating PDF and DOCX files</p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-2">Creating PDF and DOCX files</p>
                 </div>
               ) : resume?.analysis_result && !hasError ? (
                 <div className="space-y-4">
                   {/* Extracted Info */}
                   {resume.analysis_result.candidate_info && (
-                    <div className="bg-zinc-800/50 p-3 rounded-lg">
-                      <h4 className="font-semibold text-white mb-2">Extracted Candidate Info</h4>
-                      <div className="text-sm text-zinc-400 space-y-1">
+                    <div className="bg-[var(--surface)] p-3 rounded-lg">
+                      <h4 className="font-semibold text-[var(--foreground)] mb-2">Extracted Candidate Info</h4>
+                      <div className="text-sm text-[var(--muted-foreground)] space-y-1">
                         {resume.analysis_result.candidate_info.name && (
-                          <p><span className="text-zinc-500">Name:</span> {resume.analysis_result.candidate_info.name}</p>
+                          <p><span className="text-[var(--muted-foreground)]">Name:</span> {resume.analysis_result.candidate_info.name}</p>
                         )}
                         {resume.analysis_result.candidate_info.email && (
-                          <p><span className="text-zinc-500">Email:</span> {resume.analysis_result.candidate_info.email}</p>
+                          <p><span className="text-[var(--muted-foreground)]">Email:</span> {resume.analysis_result.candidate_info.email}</p>
                         )}
                       </div>
                     </div>
                   )}
                   
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Summary</h4>
-                    <p className="text-sm text-zinc-400">{resume.analysis_result.summary}</p>
+                    <h4 className="font-semibold text-[var(--foreground)] mb-2">Summary</h4>
+                    <p className="text-sm text-[var(--muted-foreground)]">{resume.analysis_result.summary}</p>
                   </div>
                   
                   {resume.analysis_result.strengths && (
                     <div>
-                      <h4 className="font-semibold text-white mb-2">Strengths</h4>
+                      <h4 className="font-semibold text-[var(--foreground)] mb-2">Strengths</h4>
                       <ul className="list-disc pl-5 space-y-1 text-sm text-green-400/80">
                         {resume.analysis_result.strengths.map((s: string, i: number) => (
                           <li key={i}>{s}</li>
@@ -327,7 +327,7 @@ export default function ResumeDetailPage() {
                   )}
                   
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Issues to Address</h4>
+                    <h4 className="font-semibold text-[var(--foreground)] mb-2">Issues to Address</h4>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-amber-400/80">
                       {resume.analysis_result.issues?.map((issue: string, i: number) => (
                         <li key={i}>{issue}</li>
@@ -337,10 +337,10 @@ export default function ResumeDetailPage() {
                 </div>
               ) : !hasError ? (
                 <div className="space-y-2 text-center py-8">
-                  <AlertCircle className="h-8 w-8 text-zinc-500 mx-auto mb-2" />
-                  <p className="text-zinc-500">Waiting for analysis...</p>
+                  <AlertCircle className="h-8 w-8 text-[var(--muted-foreground)] mx-auto mb-2" />
+                  <p className="text-[var(--muted-foreground)]">Waiting for analysis...</p>
                   {resume?.status === "uploaded" && (
-                    <Button onClick={triggerAnalysis} className="mt-4 bg-indigo-600 hover:bg-indigo-700">
+                    <Button onClick={triggerAnalysis} className="mt-4 bg-fab-red hover:bg-fab-red/90">
                       Start Analysis
                     </Button>
                   )}
@@ -354,22 +354,22 @@ export default function ResumeDetailPage() {
         <div className="space-y-6">
           {/* Template Selection */}
           {resume?.status === "waiting_input" && (
-            <Card className="bg-zinc-900 border-zinc-800 border-l-4 border-l-cyan-500">
+            <Card className="bg-[var(--card)] border-[var(--border)] border-l-4 border-l-cyan-500">
               <CardHeader>
-                <CardTitle className="text-white">Choose Template</CardTitle>
+                <CardTitle className="text-[var(--foreground)]">Choose Template</CardTitle>
                 <CardDescription>Select a design for your enhanced resume.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+                  <SelectTrigger className="bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)]">
                     <SelectValue placeholder="Select a template" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectContent className="bg-[var(--surface)] border-[var(--border)]">
                     {TEMPLATES.map((template) => (
-                      <SelectItem key={template.id} value={template.id} className="text-white hover:bg-zinc-700">
+                      <SelectItem key={template.id} value={template.id} className="text-[var(--foreground)] hover:bg-[var(--surface-hover)]">
                         <div>
                           <span className="font-medium">{template.name}</span>
-                          <span className="text-zinc-400 text-sm ml-2">- {template.description}</span>
+                          <span className="text-[var(--muted-foreground)] text-sm ml-2">- {template.description}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -380,31 +380,31 @@ export default function ResumeDetailPage() {
           )}
 
           {/* Clarification Questions */}
-          <Card className="bg-zinc-900 border-zinc-800 border-l-4 border-l-indigo-500">
+          <Card className="bg-[var(--card)] border-[var(--border)] border-l-4 border-l-fab-red">
             <CardHeader>
-              <CardTitle className="text-white">Clarification Needed</CardTitle>
+              <CardTitle className="text-[var(--foreground)]">Clarification Needed</CardTitle>
               <CardDescription>Please answer to help us improve your resume.</CardDescription>
             </CardHeader>
             <CardContent>
               {!resume?.analysis_result?.clarification_questions ? (
-                <p className="text-zinc-400 italic">Questions will appear here after analysis.</p>
+                <p className="text-[var(--muted-foreground)] italic">Questions will appear here after analysis.</p>
               ) : (
                 <form className="space-y-4" onSubmit={handleRewrite}>
                   {resume.analysis_result.clarification_questions.map((q: string, i: number) => (
                     <div key={i} className="space-y-2">
-                      <Label htmlFor={q} className="text-zinc-200">{q}</Label>
+                      <Label htmlFor={q} className="text-[var(--foreground)]">{q}</Label>
                       <Textarea 
                         id={q} 
                         name={q} 
                         placeholder="Type your answer here..." 
-                        className="bg-zinc-800 border-zinc-700 text-white"
+                        className="bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)]"
                       />
                     </div>
                   ))}
                   <Button 
                     type="submit" 
                     disabled={submitting}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 gap-2"
+                    className="w-full bg-fab-red hover:bg-fab-red/90 gap-2"
                   >
                     {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                     Submit and Rewrite
@@ -419,8 +419,8 @@ export default function ResumeDetailPage() {
             <Card className="bg-gradient-to-br from-green-900/50 to-zinc-900 border-green-700">
               <CardContent className="py-8 text-center">
                 <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">Resume Enhanced!</h3>
-                <p className="text-zinc-300 mb-4">Your professional resume is ready for download.</p>
+                <h3 className="text-xl font-bold text-[var(--foreground)] mb-2">Resume Enhanced!</h3>
+                <p className="text-[var(--foreground)] mb-4">Your professional resume is ready for download.</p>
                 <div className="flex justify-center gap-4">
                   <Button onClick={() => handleDownload("pdf")} className="bg-green-600 hover:bg-green-700">
                     Download PDF

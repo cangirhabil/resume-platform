@@ -3,11 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import { Sparkles, ArrowLeft, Loader2, Mail, Lock, Gift } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -40,7 +41,7 @@ export default function RegisterPage() {
         throw new Error("Registration failed")
       }
 
-      toast.success("Account created! Please sign in.") // Or auto-login
+      toast.success("Account created! Please sign in.")
       router.push("/login")
     } catch (error) {
       toast.error("Something went wrong. Try again.")
@@ -50,67 +51,108 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center px-4 relative overflow-hidden transition-colors duration-300">
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(120,120,120,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(120,120,120,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+      
+      {/* Gradient Orbs - Hidden in Light Mode */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-fab-blue/10 rounded-full blur-[120px] dark:opacity-100 opacity-0 transition-opacity" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-fab-red/10 rounded-full blur-[120px] dark:opacity-100 opacity-0 transition-opacity" />
+      
+      {/* Back to Home */}
+      <Link 
+        href="/"
+        className="absolute top-6 left-6 flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors z-20"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm">Back</span>
+      </Link>
 
-      <Card className="z-10 w-full max-w-md border-zinc-800 bg-zinc-900/80 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-white">Create an Account</CardTitle>
-          <CardDescription className="text-zinc-400">
-            Get started with your AI-powered resume enhancement
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md z-10"
+      >
+        <div className="p-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] backdrop-blur-xl shadow-2xl">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <Link href="/" className="inline-flex items-center gap-2 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fab-red to-fab-blue flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+            </Link>
+            <h1 className="font-barlow text-3xl font-bold text-[var(--foreground)] mb-2 uppercase tracking-tight">Create Account</h1>
+            <p className="text-[var(--muted-foreground)]">Get started with your AI-powered resume enhancement</p>
+          </div>
+
+          {/* Free Credits Badge */}
+          <div className="mb-6 p-3 rounded-xl bg-gradient-to-r from-fab-red/10 to-fab-blue/10 border border-fab-red/20 flex items-center justify-center gap-2">
+            <Gift className="w-4 h-4 text-fab-red" />
+            <span className="text-sm text-[var(--foreground)] font-medium">Get 3 free credits on signup!</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-zinc-200">Email</Label>
-              <Input 
-                id="email" 
-                name="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:ring-indigo-500"
-              />
+              <Label htmlFor="email" className="text-[var(--foreground)] text-sm">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" />
+                <Input 
+                  id="email" 
+                  name="email" 
+                  type="email" 
+                  placeholder="you@example.com" 
+                  required 
+                  className="pl-10 bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-fab-red focus:ring-fab-red/20"
+                />
+              </div>
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-zinc-200">Password</Label>
-              <Input 
-                id="password" 
-                name="password" 
-                type="password" 
-                required 
-                className="bg-zinc-800/50 border-zinc-700 text-white focus:ring-indigo-500"
-              />
+              <Label htmlFor="password" className="text-[var(--foreground)] text-sm">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" />
+                <Input 
+                  id="password" 
+                  name="password" 
+                  type="password" 
+                  required 
+                  className="pl-10 bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-fab-red focus:ring-fab-red/20"
+                />
+              </div>
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-zinc-200">Confirm Password</Label>
-              <Input 
-                id="confirmPassword" 
-                name="confirmPassword" 
-                type="password" 
-                required 
-                className="bg-zinc-800/50 border-zinc-700 text-white focus:ring-indigo-500"
-              />
+              <Label htmlFor="confirmPassword" className="text-[var(--foreground)] text-sm">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" />
+                <Input 
+                  id="confirmPassword" 
+                  name="confirmPassword" 
+                  type="password" 
+                  required 
+                  className="pl-10 bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-fab-red focus:ring-fab-red/20"
+                />
+              </div>
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+
             <Button 
               type="submit" 
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="w-full bg-fab-red hover:bg-fab-red/90 text-white font-barlow font-bold text-lg uppercase tracking-wider py-6"
               disabled={loading}
             >
               {loading ? "Creating Account..." : "Sign Up"}
             </Button>
-            <div className="text-center text-sm text-zinc-400">
+            
+            <div className="text-center text-sm text-[var(--muted-foreground)]">
               Already have an account?{" "}
-              <Link href="/login" className="text-indigo-400 hover:underline">
+              <Link href="/login" className="text-fab-red hover:text-fab-red/80 font-medium">
                 Sign in
               </Link>
             </div>
-          </CardFooter>
-        </form>
-      </Card>
+          </form>
+        </div>
+      </motion.div>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { FileText, PlusCircle, Settings, Coins, LogOut, Home, Sparkles } from "lucide-react"
 
 export default function DashboardLayout({
   children,
@@ -69,38 +70,70 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-zinc-800 bg-zinc-900/50 hidden md:block">
-        <div className="p-6 border-b border-zinc-800">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-            ResumeRefine AI
-          </h1>
+      <aside className="w-64 border-r border-[var(--border)] bg-[var(--card)] hidden md:flex flex-col">
+        <div className="p-6 border-b border-[var(--border)]">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fab-red to-fab-blue flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="font-barlow text-xl font-bold uppercase tracking-tight text-[var(--foreground)]">
+              ResumeAI
+            </h1>
+          </Link>
         </div>
-        <nav className="p-4 space-y-2">
-          <Link href="/dashboard" className="block px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition">
+        
+        <nav className="p-4 space-y-2 flex-1">
+          <Link 
+            href="/dashboard" 
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border)] font-medium transition hover:bg-[var(--surface-hover)]"
+          >
+            <FileText className="w-4 h-4" />
             My Resumes
           </Link>
-          <Link href="/dashboard/new" className="block px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition">
-            New Resume
-          </Link>
-          <div className="pt-4 mt-4 border-t border-zinc-800 space-y-2">
-             <Link href="/dashboard/settings" className="block px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition">
-                Settings
-             </Link>
-             <Button onClick={handleBuyCredits} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
-                 Buy 5 Credits ($20)
-             </Button>
+          
+          
+          <div className="pt-4 mt-4 border-t border-[var(--border)] space-y-2">
+            <Link 
+              href="/dashboard/settings" 
+              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] transition"
+            >
+              <Settings className="w-4 h-4" />
+              Settings
+            </Link>
+            <Button 
+              onClick={handleBuyCredits} 
+              className="w-full bg-gradient-to-r from-fab-red to-fab-blue hover:opacity-90 text-white font-barlow font-bold uppercase tracking-wider"
+            >
+              <Coins className="w-4 h-4 mr-2" />
+              Buy 5 Credits ($20)
+            </Button>
           </div>
         </nav>
+
+        {/* Bottom Links */}
+        <div className="p-4 border-t border-[var(--border)]">
+          <Link 
+            href="/" 
+            className="flex items-center gap-3 px-4 py-2 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] transition text-sm"
+          >
+            <Home className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-8 bg-zinc-900/50 backdrop-blur">
-          <div className="text-sm text-zinc-400">
-            Credits: <span className="text-indigo-400 font-bold text-lg">{user?.credits ?? "..."}</span>
+        <header className="h-16 border-b border-[var(--border)] flex items-center justify-between px-8 bg-[var(--card)] backdrop-blur">
+          <div className="flex items-center gap-3 text-sm">
+            <div className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
+              <Coins className="w-4 h-4 text-emerald-500" />
+              <span className="text-[var(--muted-foreground)]">Credits:</span>
+              <span className="text-emerald-500 font-bold text-lg">{user?.credits ?? "..."}</span>
+            </div>
           </div>
           <Button 
             variant="ghost" 
@@ -108,14 +141,15 @@ export default function DashboardLayout({
               localStorage.removeItem("token")
               router.push("/login")
             }}
-            className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+            className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)]"
           >
+            <LogOut className="w-4 h-4 mr-2" />
             Sign Out
           </Button>
         </header>
 
         {/* Page Content */}
-        <div className="p-8 flex-1 overflow-auto">
+        <div className="p-8 flex-1 overflow-auto bg-[var(--background)]">
           {children}
         </div>
       </main>

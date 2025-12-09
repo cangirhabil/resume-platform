@@ -1,14 +1,29 @@
-# from weasyprint import HTML # Removed top-level import
+from fpdf import FPDF
 from jinja2 import Environment, FileSystemLoader
 import os
 import io
 from typing import Dict, Any, List
 
+
+class ResumePDF(FPDF):
+    """Custom PDF class for resume generation with professional layout."""
+    
+    def __init__(self):
+        super().__init__()
+        self.set_auto_page_break(auto=True, margin=15)
+        
+    def header(self):
+        pass  # We'll handle headers manually for more control
+        
+    def footer(self):
+        pass  # No footer needed for resumes
+
+
 class PDFGenerator:
     def __init__(self):
         self.template_dir = os.path.join(os.path.dirname(__file__), "../templates")
         self.env = Environment(loader=FileSystemLoader(self.template_dir))
-        self.available_templates = ["modern", "classic", "minimal"]
+        self.available_templates = ["professional", "modern", "classic", "minimal"]
 
     def get_available_templates(self) -> List[str]:
         """Returns list of available template names."""
@@ -84,13 +99,258 @@ class PDFGenerator:
                 normalized_education.append(norm_edu)
         normalized["education"] = normalized_education
         
+        # Handle programs/certifications
+        programs = normalized.get("programs", normalized.get("certifications", []))
+        normalized["programs"] = programs
+        
         return normalized
+
+    def _clean_text(self, text: str) -> str:
+        """Clean text for PDF rendering - handle unicode characters."""
+        if not text:
+            return ""
+        # Replace unicode bullet points
+        text = str(text)
+        text = text.replace("•", "-")
+        text = text.replace("▪", "-")
+        text = text.replace("→", "->")
+        text = text.replace("–", "-")
+        text = text.replace("—", "-")
+        text = text.replace(""", '"')
+        text = text.replace(""", '"')
+        text = text.replace("'", "'")
+        text = text.replace("'", "'")
+        return text
+
+    def generate_professional(self, data: dict) -> bytes:
+        """Generate PDF using professional template matching the user's design."""
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        
+        # Use built-in fonts
+        personal_info = data.get("personal_info", {})
+        name = self._clean_text(personal_info.get("name", "Your Name"))
+        
+        # HEADER - Name (large, bold)
+        pdf.set_font("Helvetica", "B", 28)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 12, name, ln=True)
+        
+        # Contact info line
+        contact_parts = []
+        if personal_info.get("email"):
+            contact_parts.append(personal_info["email"])
+        if personal_info.get("linkedin"):
+            contact_parts.append(personal_info["linkedin"])
+        if personal_info.get("github"):
+            contact_parts.append(personal_info["github"])
+        if personal_info.get("phone"):
+            contact_parts.append(personal_info["phone"])
+        if personal_info.get("location"):
+            contact_parts.append(personal_info["location"])
+        
+        if contact_parts:
+            pdf.set_font("Helvetica", "", 9)
+            pdf.set_text_color(100, 100, 100)
+            contact_text = " | ".join(contact_parts)
+            pdf.cell(0, 5, self._clean_text(contact_text), ln=True)
+        
+        # SUMMARY
+        summary = data.get("summary", "")
+        if summary:
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.set_text_color(60, 60, 60)
+            pdf.ln(3)
+            pdf.multi_cell(0, 5, self._clean_text(summary))
+        
+        pdf.ln(5)
+        
+        # EDUCATION Section
+        education = data.get("education", [])
+        if education:
+            self._add_section_header(pdf, "EDUCATION")
+            for edu in education:
+                school = self._clean_text(edu.get("school") or edu.get("institution", ""))
+                degree = self._clean_text(edu.get("degree", ""))
+                dates = self._clean_text(edu.get("dates", ""))
+                
+                # Title with degree and school
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                
+                title_text = f"{school}"
+                if degree:
+                    title_text += f", {degree}"
+                
+                # Calculate width for title and date
+                page_width = pdf.w - pdf.l_margin - pdf.r_margin
+                date_width = pdf.get_string_width(dates) + 5
+                title_width = page_width - date_width
+                
+                # Title
+                pdf.cell(title_width, 6, title_text[:80], ln=False)
+                
+                # Date (right-aligned)
+                pdf.set_font("Helvetica", "I", 10)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(date_width, 6, dates, ln=True, align="R")
+                
+                # Bullets for education details
+                details = edu.get("details", edu.get("bullets", []))
+                if details:
+                    for detail in details:
+                        if detail:
+                            self._add_bullet(pdf, self._clean_text(detail))
+                
+                pdf.ln(2)
+        
+        # EXPERIENCE Section
+        experience = data.get("experience", [])
+        if experience:
+            self._add_section_header(pdf, "EXPERIENCE")
+            for exp in experience:
+                title = self._clean_text(exp.get("title") or exp.get("position", ""))
+                company = self._clean_text(exp.get("company", ""))
+                dates = self._clean_text(exp.get("dates", ""))
+                subtitle = self._clean_text(exp.get("subtitle", ""))
+                
+                # Title line (bold title - company)
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                
+                title_text = title
+                if company:
+                    title_text += f" - {company}"
+                
+                # Calculate width for title and date
+                page_width = pdf.w - pdf.l_margin - pdf.r_margin
+                date_width = pdf.get_string_width(dates) + 5
+                title_width = page_width - date_width
+                
+                pdf.cell(title_width, 6, title_text[:70], ln=False)
+                
+                # Date (right-aligned, italic)
+                pdf.set_font("Helvetica", "I", 10)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(date_width, 6, dates, ln=True, align="R")
+                
+                # Subtitle if present
+                if subtitle:
+                    pdf.set_font("Helvetica", "I", 10)
+                    pdf.set_text_color(60, 60, 60)
+                    pdf.cell(0, 5, subtitle, ln=True)
+                
+                # Bullets
+                bullets = exp.get("bullets", exp.get("details", []))
+                for bullet in bullets:
+                    if bullet:
+                        self._add_bullet(pdf, self._clean_text(bullet))
+                
+                # Website/Product link
+                website = exp.get("website") or exp.get("product") or exp.get("link")
+                if website:
+                    pdf.set_font("Helvetica", "", 9)
+                    pdf.set_text_color(100, 100, 100)
+                    pdf.set_x(pdf.l_margin + 5)
+                    pdf.cell(0, 5, f"Website: {website}", ln=True)
+                
+                pdf.ln(2)
+        
+        # TECHNOLOGY / SKILLS Section
+        skills = data.get("skills", [])
+        if skills:
+            self._add_section_header(pdf, "TECHNOLOGY")
+            pdf.set_font("Helvetica", "", 10)
+            pdf.set_text_color(40, 40, 40)
+            skills_text = ", ".join([self._clean_text(s) for s in skills])
+            pdf.multi_cell(0, 5, skills_text)
+            pdf.ln(3)
+        
+        # PROJECTS Section
+        projects = data.get("projects", [])
+        if projects:
+            self._add_section_header(pdf, "PROJECTS")
+            for project in projects:
+                name = self._clean_text(project.get("name", ""))
+                description = self._clean_text(project.get("description", ""))
+                dates = self._clean_text(project.get("dates", ""))
+                
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                
+                # Calculate width for title and date
+                page_width = pdf.w - pdf.l_margin - pdf.r_margin
+                date_width = pdf.get_string_width(dates) + 5
+                title_width = page_width - date_width
+                
+                pdf.cell(title_width, 6, name[:60], ln=False)
+                
+                # Date (right-aligned)
+                pdf.set_font("Helvetica", "I", 10)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(date_width, 6, dates, ln=True, align="R")
+                
+                # Description
+                if description:
+                    self._add_bullet(pdf, description)
+                
+                pdf.ln(2)
+        
+        # PROGRAMS Section
+        programs = data.get("programs", data.get("certifications", []))
+        if programs:
+            self._add_section_header(pdf, "PROGRAMS")
+            for program in programs:
+                if isinstance(program, str):
+                    pdf.set_font("Helvetica", "", 10)
+                    pdf.set_text_color(40, 40, 40)
+                    self._add_bullet(pdf, self._clean_text(program))
+                elif isinstance(program, dict):
+                    name = self._clean_text(program.get("name", ""))
+                    dates = self._clean_text(program.get("dates", ""))
+                    description = self._clean_text(program.get("description", ""))
+                    
+                    pdf.set_font("Helvetica", "B", 11)
+                    pdf.set_text_color(0, 0, 0)
+                    
+                    page_width = pdf.w - pdf.l_margin - pdf.r_margin
+                    date_width = pdf.get_string_width(dates) + 5
+                    title_width = page_width - date_width
+                    
+                    pdf.cell(title_width, 6, name[:60], ln=False)
+                    
+                    pdf.set_font("Helvetica", "I", 10)
+                    pdf.set_text_color(80, 80, 80)
+                    pdf.cell(date_width, 6, dates, ln=True, align="R")
+                    
+                    if description:
+                        self._add_bullet(pdf, description)
+            pdf.ln(2)
+        
+        return pdf.output()
+
+    def _add_section_header(self, pdf: FPDF, title: str):
+        """Add a section header with gray background."""
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_fill_color(230, 230, 240)  # Light blue-gray background
+        pdf.cell(0, 7, title, ln=True, fill=True)
+        pdf.ln(2)
+    
+    def _add_bullet(self, pdf: FPDF, text: str):
+        """Add a bullet point item."""
+        pdf.set_font("Helvetica", "", 10)
+        pdf.set_text_color(40, 40, 40)
+        pdf.set_x(pdf.l_margin + 5)
+        # Use dash as bullet
+        pdf.multi_cell(0, 5, f"- {text}")
 
     def render_html(self, resume_data: dict, theme: str) -> str:
         """
         Renders the HTML content from a Jinja2 template.
         """
-        if theme not in self.available_templates:
+        if theme not in self.available_templates or theme == "professional":
             theme = "modern"
         
         # Normalize data for consistent template rendering
@@ -99,16 +359,23 @@ class PDFGenerator:
         template = self.env.get_template(f"themes/{theme}.html")
         return template.render(**normalized_data)
 
-    def generate(self, resume_data: dict, theme: str = "modern") -> bytes:
+    def generate(self, resume_data: dict, theme: str = "professional") -> bytes:
         """
         Generates PDF bytes from data using the specified theme.
         """
         try:
-            from weasyprint import HTML
-            html_content = self.render_html(resume_data, theme)
-            return HTML(string=html_content).write_pdf()
+            # Normalize data
+            normalized_data = self._normalize_resume_data(resume_data)
+            
+            # Use fpdf2 professional template by default
+            if theme == "professional" or theme == "modern":
+                return self.generate_professional(normalized_data)
+            else:
+                # For other themes, use fpdf2 professional as fallback
+                return self.generate_professional(normalized_data)
+                
         except Exception as e:
-            print(f"PDF Generation Failed (WeasyPrint error): {e}")
+            print(f"PDF Generation Failed: {e}")
             import traceback
             traceback.print_exc()
             # Return a valid PDF with error message
@@ -116,7 +383,17 @@ class PDFGenerator:
     
     def _generate_error_pdf(self, error_message: str) -> bytes:
         """Generate a PDF with error message."""
-        return b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/MediaBox [0 0 612 792]\n/Resources <<\n/Font <<\n/F1 4 0 R\n>>\n>>\n/Contents 5 0 R\n>>\nendobj\n4 0 obj\n<<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\nendobj\n5 0 obj\n<<\n/Length 80\n>>\nstream\nBT\n/F1 18 Tf\n50 700 Td\n(Resume Generation Error - Please try again) Tj\nET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000010 00000 n \n0000000060 00000 n \n0000000117 00000 n \n0000000220 00000 n \n0000000307 00000 n \ntrailer\n<<\n/Size 6\n/Root 1 0 R\n>>\nstartxref\n437\n%%EOF"
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Helvetica", "B", 18)
+        pdf.set_text_color(200, 0, 0)
+        pdf.cell(0, 20, "Resume Generation Error", ln=True, align="C")
+        pdf.set_font("Helvetica", "", 12)
+        pdf.set_text_color(80, 80, 80)
+        pdf.multi_cell(0, 8, f"Error: {error_message[:200]}")
+        pdf.ln(10)
+        pdf.cell(0, 10, "Please try again or contact support.", ln=True, align="C")
+        return pdf.output()
 
     def generate_docx(self, resume_data: dict) -> bytes:
         """

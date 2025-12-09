@@ -2,9 +2,9 @@
 
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { UploadCloud, FileText, Loader2,  CheckCircle2 } from "lucide-react"
+import { UploadCloud, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 export default function NewResumePage() {
@@ -77,15 +77,15 @@ export default function NewResumePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-white">Upload Resume</h2>
-        <p className="text-zinc-400">We&apos;ll analyze your existing resume to identify gaps and improvements.</p>
+        <h2 className="font-barlow text-4xl font-bold text-[var(--foreground)] uppercase tracking-tight">Upload Resume</h2>
+        <p className="text-[var(--muted-foreground)]">We&apos;ll analyze your existing resume to identify gaps and improvements.</p>
       </div>
 
       <Card 
         className={`border-2 border-dashed transition-all duration-200 ${
           isDragOver 
-            ? "border-indigo-500 bg-indigo-500/10" 
-            : "border-zinc-800 bg-zinc-900/50 hover:border-zinc-700"
+            ? "border-fab-red bg-fab-red/10" 
+            : "border-[var(--border)] bg-[var(--card)] hover:border-fab-red/50"
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -101,26 +101,26 @@ export default function NewResumePage() {
           />
           
           <div className={`h-20 w-20 rounded-full flex items-center justify-center mb-6 transition-colors ${
-            uploading ? "bg-indigo-500/20" : "bg-zinc-800"
+            uploading ? "bg-fab-red/20" : "bg-[var(--surface)]"
           }`}>
              {uploading ? (
-               <Loader2 className="h-10 w-10 text-indigo-500 animate-spin" />
+               <Loader2 className="h-10 w-10 text-fab-red animate-spin" />
              ) : (
-               <UploadCloud className="h-10 w-10 text-zinc-400" />
+               <UploadCloud className="h-10 w-10 text-[var(--muted-foreground)]" />
              )}
           </div>
 
-          <h3 className="text-xl font-medium text-white mb-2">
+          <h3 className="text-xl font-medium text-[var(--foreground)] mb-2">
             {uploading ? "Uploading..." : "Click to upload or drag and drop"}
           </h3>
-          <p className="text-sm text-zinc-500 max-w-xs mx-auto">
+          <p className="text-sm text-[var(--muted-foreground)] max-w-xs mx-auto">
             PDF or DOCX (Max 10MB)
           </p>
         </CardContent>
       </Card>
       
       <div className="flex justify-center">
-        <Button variant="link" className="text-zinc-400" onClick={() => router.push("/dashboard")}>
+        <Button variant="link" className="text-[var(--muted-foreground)]" onClick={() => router.push("/dashboard")}>
           Cancel
         </Button>
       </div>

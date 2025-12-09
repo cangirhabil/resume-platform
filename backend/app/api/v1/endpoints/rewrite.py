@@ -93,7 +93,7 @@ async def process_rewrite(
 
 class RewriteRequest(BaseModel):
     answers: Dict[str, str]
-    template: Optional[str] = "modern"
+    template: Optional[str] = "professional"
 
 @router.post("/{resume_id}/rewrite")
 async def start_rewrite(
@@ -109,9 +109,9 @@ async def start_rewrite(
     template = request_body.template or "modern"
     
     # Validate template
-    valid_templates = ["modern", "classic", "minimal"]
+    valid_templates = ["professional", "modern", "classic", "minimal"]
     if template not in valid_templates:
-        template = "modern"
+        template = "professional"
     
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:

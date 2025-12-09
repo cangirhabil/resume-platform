@@ -98,27 +98,27 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-fab-red to-fab-blue bg-clip-text text-transparent">
           Settings
         </h2>
-        <p className="text-zinc-400">Configure your AI model and API keys for resume processing.</p>
+        <p className="text-[var(--muted-foreground)]">Configure your AI model and API keys for resume processing.</p>
       </div>
 
       {/* AI Model Selection */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
+      <Card className="bg-[var(--card)] border-[var(--border)]">
         <CardHeader>
-          <CardTitle className="text-zinc-100 flex items-center gap-2">
-            <Bot className="h-5 w-5 text-indigo-400" />
+          <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
+            <Bot className="h-5 w-5 text-fab-red" />
             AI Model Selection
           </CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardDescription className="text-[var(--muted-foreground)]">
             Choose which AI model to use for analyzing and rewriting your resumes.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Provider Selection */}
           <div className="space-y-2">
-            <Label className="text-zinc-200">AI Provider</Label>
+            <Label className="text-[var(--foreground)]">AI Provider</Label>
             <div className="grid grid-cols-3 gap-2">
               {PROVIDERS.map((p) => (
                 <button
@@ -126,8 +126,8 @@ export default function SettingsPage() {
                   onClick={() => setProvider(p.id)}
                   className={`p-3 rounded-lg border transition-all text-left ${
                     provider === p.id 
-                      ? "border-indigo-500 bg-indigo-500/20 text-white" 
-                      : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600"
+                      ? "border-fab-red bg-fab-red/20 text-[var(--foreground)]" 
+                      : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted-foreground)] hover:border-zinc-600"
                   }`}
                 >
                   <span className="text-xl">{p.icon}</span>
@@ -139,18 +139,18 @@ export default function SettingsPage() {
 
           {/* Model Selection */}
           <div className="space-y-2">
-            <Label className="text-zinc-200">Model</Label>
+            <Label className="text-[var(--foreground)]">Model</Label>
             <Select value={model} onValueChange={setModel}>
-              <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
+              <SelectTrigger className="bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)]">
                 <SelectValue placeholder="Select a model" />
               </SelectTrigger>
-              <SelectContent className="bg-zinc-800 border-zinc-700">
+              <SelectContent className="bg-[var(--surface)] border-[var(--border)]">
                 {MODELS[provider as keyof typeof MODELS]?.map((m) => (
-                  <SelectItem key={m.id} value={m.id} className="text-white hover:bg-zinc-700">
+                  <SelectItem key={m.id} value={m.id} className="text-[var(--foreground)] hover:bg-[var(--surface-hover)]">
                     <div className="flex items-center gap-2">
                       {m.name}
                       {m.recommended && (
-                        <span className="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded">
+                        <span className="text-xs bg-fab-red/30 text-fab-red px-2 py-0.5 rounded">
                           Recommended
                         </span>
                       )}
@@ -164,25 +164,25 @@ export default function SettingsPage() {
       </Card>
 
       {/* API Keys */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
+      <Card className="bg-[var(--card)] border-[var(--border)]">
         <CardHeader>
-          <CardTitle className="text-zinc-100 flex items-center gap-2">
+          <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
             <Key className="h-5 w-5 text-amber-400" />
             API Keys
           </CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardDescription className="text-[var(--muted-foreground)]">
             Enter your API key for the selected provider. Keys are stored locally in your browser.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Google Gemini Key */}
-          <div className={`space-y-2 p-3 rounded-lg transition-all ${provider === "google" ? "bg-indigo-500/10 border border-indigo-500/30" : ""}`}>
+          <div className={`space-y-2 p-3 rounded-lg transition-all ${provider === "google" ? "bg-fab-red/10 border border-fab-red/30" : ""}`}>
             <div className="flex items-center justify-between">
-              <Label htmlFor="gemini" className="text-zinc-200">
+              <Label htmlFor="gemini" className="text-[var(--foreground)]">
                 🔷 Google Gemini API Key
               </Label>
               {provider === "google" && (
-                <span className="text-xs text-indigo-400 flex items-center gap-1">
+                <span className="text-xs text-fab-red flex items-center gap-1">
                   <Zap className="h-3 w-3" /> Active
                 </span>
               )}
@@ -193,21 +193,21 @@ export default function SettingsPage() {
               placeholder="AIza..." 
               value={geminiKey}
               onChange={(e) => setGeminiKey(e.target.value)}
-              className="bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-indigo-500"
+              className="bg-[var(--background)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-fab-red"
             />
-            <p className="text-xs text-zinc-500">
-              Get your key at <a href="https://makersuite.google.com/app/apikey" target="_blank" className="text-indigo-400 hover:underline">Google AI Studio</a>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Get your key at <a href="https://makersuite.google.com/app/apikey" target="_blank" className="text-fab-red hover:underline">Google AI Studio</a>
             </p>
           </div>
           
           {/* OpenAI Key */}
-          <div className={`space-y-2 p-3 rounded-lg transition-all ${provider === "openai" ? "bg-indigo-500/10 border border-indigo-500/30" : ""}`}>
+          <div className={`space-y-2 p-3 rounded-lg transition-all ${provider === "openai" ? "bg-fab-red/10 border border-fab-red/30" : ""}`}>
             <div className="flex items-center justify-between">
-              <Label htmlFor="openai" className="text-zinc-200">
+              <Label htmlFor="openai" className="text-[var(--foreground)]">
                 🟢 OpenAI API Key
               </Label>
               {provider === "openai" && (
-                <span className="text-xs text-indigo-400 flex items-center gap-1">
+                <span className="text-xs text-fab-red flex items-center gap-1">
                   <Zap className="h-3 w-3" /> Active
                 </span>
               )}
@@ -218,21 +218,21 @@ export default function SettingsPage() {
               placeholder="sk-..." 
               value={openaiKey}
               onChange={(e) => setOpenaiKey(e.target.value)}
-              className="bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-indigo-500"
+              className="bg-[var(--background)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-fab-red"
             />
-            <p className="text-xs text-zinc-500">
-              Get your key at <a href="https://platform.openai.com/api-keys" target="_blank" className="text-indigo-400 hover:underline">OpenAI Platform</a>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Get your key at <a href="https://platform.openai.com/api-keys" target="_blank" className="text-fab-red hover:underline">OpenAI Platform</a>
             </p>
           </div>
 
           {/* Anthropic Key */}
-          <div className={`space-y-2 p-3 rounded-lg transition-all ${provider === "anthropic" ? "bg-indigo-500/10 border border-indigo-500/30" : ""}`}>
+          <div className={`space-y-2 p-3 rounded-lg transition-all ${provider === "anthropic" ? "bg-fab-red/10 border border-fab-red/30" : ""}`}>
             <div className="flex items-center justify-between">
-              <Label htmlFor="anthropic" className="text-zinc-200">
+              <Label htmlFor="anthropic" className="text-[var(--foreground)]">
                 🟠 Anthropic API Key
               </Label>
               {provider === "anthropic" && (
-                <span className="text-xs text-indigo-400 flex items-center gap-1">
+                <span className="text-xs text-fab-red flex items-center gap-1">
                   <Zap className="h-3 w-3" /> Active
                 </span>
               )}
@@ -243,10 +243,10 @@ export default function SettingsPage() {
               placeholder="sk-ant-..." 
               value={anthropicKey}
               onChange={(e) => setAnthropicKey(e.target.value)}
-              className="bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-indigo-500"
+              className="bg-[var(--background)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-fab-red"
             />
-            <p className="text-xs text-zinc-500">
-              Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank" className="text-indigo-400 hover:underline">Anthropic Console</a>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank" className="text-fab-red hover:underline">Anthropic Console</a>
             </p>
           </div>
 
@@ -265,8 +265,8 @@ export default function SettingsPage() {
             className={`w-full gap-2 mt-4 transition-all ${
               saved 
                 ? "bg-green-600 hover:bg-green-700" 
-                : "bg-indigo-600 hover:bg-indigo-700"
-            } text-white`}
+                : "bg-fab-red hover:bg-fab-red/90"
+            } text-[var(--foreground)]`}
           >
             {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
             {saved ? "Saved!" : "Save Configuration"}
@@ -275,11 +275,11 @@ export default function SettingsPage() {
       </Card>
 
       {/* Current Config Summary */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
+      <Card className="bg-[var(--card)] border-[var(--border)]">
         <CardContent className="py-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-400">Current Configuration:</span>
-            <span className="text-white font-medium">
+            <span className="text-[var(--muted-foreground)]">Current Configuration:</span>
+            <span className="text-[var(--foreground)] font-medium">
               {PROVIDERS.find(p => p.id === provider)?.icon} {MODELS[provider as keyof typeof MODELS]?.find(m => m.id === model)?.name}
             </span>
           </div>
