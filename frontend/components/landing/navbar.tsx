@@ -5,6 +5,8 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Menu } from "lucide-react"
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
@@ -43,6 +45,7 @@ export const Navbar = () => {
           </span>
         </Link>
 
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-5">
           {["Features", "Process", "Pricing"].map((item) => (
             <Link 
@@ -58,18 +61,61 @@ export const Navbar = () => {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link 
-            href="/login"
-            className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/signup" 
-            className="group relative inline-flex h-9 items-center justify-center overflow-hidden rounded-full bg-fab-red px-6 font-medium text-white transition-all hover:scale-105"
-          >
-            <span className="text-xs font-bold">Get Started</span>
-          </Link>
+          
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link 
+              href="/login"
+              className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup" 
+              className="group relative inline-flex h-9 items-center justify-center overflow-hidden rounded-full bg-fab-red px-6 font-medium text-white transition-all hover:scale-105"
+            >
+              <span className="text-xs font-bold">Get Started</span>
+            </Link>
+          </div>
+
+          {/* Mobile Menu */}
+          <Sheet>
+            <SheetTrigger className="md:hidden p-2 hover:bg-[var(--surface-hover)] rounded-full transition-colors">
+              <Menu className="w-5 h-5 text-[var(--foreground)]" />
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <div className="flex flex-col gap-8 mt-10">
+                <div className="flex flex-col gap-4">
+                  {["Features", "Process", "Pricing"].map((item) => (
+                    <Link 
+                      key={item} 
+                      href={`#${item.toLowerCase()}`}
+                      className="text-lg font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                    >
+                      {item}
+                    </Link>
+                  ))}
+                </div>
+                
+                <div className="h-px bg-[var(--border)]" />
+                
+                <div className="flex flex-col gap-4">
+                  <Link 
+                    href="/login"
+                    className="text-lg font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup" 
+                    className="flex h-12 items-center justify-center rounded-full bg-fab-red font-medium text-white transition-all hover:opacity-90 active:scale-95"
+                  >
+                    <span className="text-sm font-bold">Get Started</span>
+                  </Link>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </motion.nav>
     </div>

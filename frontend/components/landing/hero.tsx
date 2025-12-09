@@ -38,7 +38,7 @@ export const HeroSection = () => {
         </motion.div>
 
         {/* Massive Typography */}
-        <h1 className="font-barlow font-bold text-7xl sm:text-8xl md:text-9xl lg:text-[11rem] leading-[0.85] tracking-tighter text-[var(--foreground)] mb-8 uppercase transition-colors duration-300">
+        <h1 className="font-barlow font-bold text-5xl sm:text-7xl md:text-9xl lg:text-[11rem] leading-[0.9] sm:leading-[0.85] tracking-tighter text-[var(--foreground)] mb-6 sm:mb-8 uppercase transition-colors duration-300">
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "circOut" }}>
             Resume
           </motion.div>
@@ -104,10 +104,10 @@ export const HeroSection = () => {
           </div>
           
           {/* Main Content */}
-          <div className="p-6 grid grid-cols-12 gap-4 h-[480px] bg-[var(--background)]">
+          <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 h-auto lg:h-[480px] bg-[var(--background)] overflow-y-auto lg:overflow-visible">
             
             {/* Left Sidebar - Process Steps */}
-            <div className="col-span-3 space-y-3">
+            <div className="lg:col-span-3 space-y-3 flex lg:block overflow-x-auto lg:overflow-visible gap-3 pb-2 lg:pb-0">
               <div className="font-pixel text-[10px] text-[var(--muted-foreground)] uppercase tracking-widest mb-4">Workflow</div>
               
               {[
@@ -147,7 +147,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Center - Resume Preview */}
-            <div className="col-span-5 relative">
+            <div className="lg:col-span-5 relative min-h-[400px] lg:min-h-0">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -213,7 +213,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Right Panel - Stats & Insights */}
-            <div className="col-span-4 space-y-4">
+            <div className="lg:col-span-4 space-y-4">
               {/* ATS Score Card */}
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}

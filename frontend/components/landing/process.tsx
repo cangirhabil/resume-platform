@@ -66,24 +66,87 @@ export function ProcessSection() {
   })
 
   return (
-    <section id="process" ref={containerRef} className="relative bg-[var(--background)] transition-colors duration-300">
-      {/* Sticky Container */}
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+    <section id="process" ref={containerRef} className="relative bg-[var(--background)] transition-colors duration-300 py-20 lg:py-0">
+      
+      {/* Mobile Layout (Vertical Stack) */}
+      <div className="block lg:hidden container px-4 mx-auto">
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-px w-12 bg-fab-red" />
+            <span className="font-pixel text-fab-red text-sm tracking-widest uppercase">How It Works</span>
+          </div>
+          <h2 className="font-barlow font-bold text-5xl text-[var(--foreground)] uppercase leading-[0.9] tracking-tighter">
+            Your Workflow
+          </h2>
+        </div>
+
+        <div className="space-y-6">
+          {steps.map((step, i) => {
+             const Icon = step.icon
+             return (
+              <motion.div
+                key={step.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: i * 0.1 }}
+                className="p-6 rounded-3xl border border-[var(--border)] bg-[var(--surface)] relative overflow-hidden group"
+              >
+                {/* Background Glow */}
+                <div 
+                  className="absolute -right-20 -top-20 w-40 h-40 rounded-full blur-[60px] opacity-20"
+                  style={{ backgroundColor: step.color }}
+                />
+
+                <div className="flex items-start justify-between mb-6">
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center border border-[var(--border)]"
+                    style={{ backgroundColor: `${step.color}15` }}
+                  >
+                    <Icon className="w-6 h-6" style={{ color: step.color }} />
+                  </div>
+                  <span className="font-pixel text-xs tracking-widest text-[var(--muted-foreground)]">0{step.id}</span>
+                </div>
+
+                <h3 className="font-barlow font-bold text-3xl text-[var(--foreground)] uppercase mb-2">
+                  {step.keyword}
+                </h3>
+                <p className="font-barlow text-lg text-[var(--muted-foreground)] mb-4">{step.title}</p>
+                <p className="font-sans text-[var(--muted-foreground)] text-sm leading-relaxed mb-6">
+                  {step.description}
+                </p>
+
+                <div className="space-y-2">
+                  {step.features.map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm text-[var(--foreground)]">
+                      <CheckCircle2 className="w-4 h-4" style={{ color: step.color }} />
+                      {feature}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+             )
+          })}
+        </div>
+      </div>
+
+      {/* Desktop Layout (Sticky) */}
+      <div className="hidden lg:flex sticky top-0 h-screen items-center overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(120,120,120,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(120,120,120,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
           {/* Dynamic Glow based on active step */}
           <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] opacity-20 dark:opacity-20 light:opacity-10"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] rounded-full blur-[100px] lg:blur-[150px] opacity-20 dark:opacity-20 light:opacity-10"
             animate={{ backgroundColor: steps[activeStep]?.color || "#fc494c" }}
             transition={{ duration: 0.8 }}
           />
         </div>
 
         <div className="container px-4 mx-auto relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left Side - Text Content */}
-            <div className="space-y-8">
+            <div className="space-y-6 lg:space-y-8 w-full">
               {/* Section Label */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -95,12 +158,12 @@ export function ProcessSection() {
               </motion.div>
 
               {/* Main Title */}
-              <div className="space-y-2">
-                <h2 className="font-barlow font-bold text-6xl md:text-7xl lg:text-8xl text-[var(--foreground)] uppercase leading-[0.85] tracking-tighter">
+              <div className="space-y-2 h-[80px] lg:h-auto relative lg:static">
+                <h2 className="font-barlow font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-[var(--foreground)] uppercase leading-[0.85] tracking-tighter absolute lg:static left-0 top-0 transition-all">
                   {steps.map((step, i) => (
                     <motion.span
                       key={step.id}
-                      className="block"
+                      className="block absolute lg:static left-0 top-0 w-full"
                       animate={{
                         opacity: activeStep === i ? 1 : 0.2,
                         x: activeStep === i ? 0 : -20,
@@ -141,7 +204,7 @@ export function ProcessSection() {
             </div>
 
             {/* Right Side - Active Step Card */}
-            <div className="relative h-[500px]">
+            <div className="relative h-[450px] lg:h-[500px] w-full">
               {steps.map((step, i) => (
                 <StepCard key={step.id} step={step} isActive={activeStep === i} />
               ))}
@@ -151,7 +214,7 @@ export function ProcessSection() {
       </div>
 
       {/* Spacer for scroll */}
-      <div className="h-[300vh]" />
+      <div className="hidden lg:block h-[300vh]" />
     </section>
   )
 }
