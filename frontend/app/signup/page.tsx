@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { Sparkles, ArrowLeft, Loader2, Mail, Lock } from "lucide-react"
+import { Sparkles, ArrowLeft, Loader2, Mail, Lock, User } from "lucide-react"
 import { NoiseBackground, GlassCard } from "@/components/ui/background"
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -21,31 +21,38 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget)
     const email = formData.get("email") as string
     const password = formData.get("password") as string
+    const confirmPassword = formData.get("confirmPassword") as string
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords don't match")
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters")
+      setLoading(false)
+      return
+    }
 
     try {
-      const formBody = new URLSearchParams()
-      formBody.append("username", email)
-      formBody.append("password", password)
-
-      const res = await fetch("http://localhost:8000/api/v1/auth/login", {
+      const res = await fetch("http://localhost:8000/api/v1/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formBody,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       })
 
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.detail || "Login failed")
+        throw new Error(error.detail || "Signup failed")
       }
 
       const data = await res.json()
       localStorage.setItem("token", data.access_token)
-      toast.success("Welcome back!")
+      toast.success("Account created! Welcome to ResumeAI 🎉")
       router.push("/dashboard")
     } catch (error: any) {
-      toast.error(error.message || "Invalid credentials")
+      toast.error(error.message || "Failed to create account")
     } finally {
       setLoading(false)
     }
@@ -78,8 +85,13 @@ export default function LoginPage() {
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
             </Link>
-            <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-zinc-400">Sign in to access your AI resume workspace</p>
+            <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
+            <p className="text-zinc-400">Start transforming your resume with AI</p>
+          </div>
+
+          {/* Free Credits Badge */}
+          <div className="mb-6 p-3 rounded-lg bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/20 text-center">
+            <span className="text-sm text-cyan-400">🎁 Get 3 free credits on signup!</span>
           </div>
 
           {/* Form */}
@@ -107,6 +119,21 @@ export default function LoginPage() {
                   id="password" 
                   name="password" 
                   type="password"
+                  placeholder="Min. 8 characters"
+                  required 
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:border-cyan-500 focus:ring-cyan-500/20"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-zinc-200 text-sm">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <Input 
+                  id="confirmPassword" 
+                  name="confirmPassword" 
+                  type="password"
                   placeholder="••••••••"
                   required 
                   className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:border-cyan-500 focus:ring-cyan-500/20"
@@ -122,10 +149,10 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Signing in...
+                  Creating account...
                 </>
               ) : (
-                "Sign In"
+                "Create Account"
               )}
             </Button>
           </form>
@@ -133,9 +160,9 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-sm text-zinc-400">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-cyan-400 hover:text-cyan-300 font-medium">
-                Sign up
+              Already have an account?{" "}
+              <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                Sign in
               </Link>
             </p>
           </div>
