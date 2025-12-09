@@ -5,14 +5,34 @@ from app.db.session import get_db
 from app.models import User, Resume, CreditTransaction
 from app.api.v1.endpoints.upload import get_current_user
 from typing import Optional
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 def require_superuser(current_user: User = Depends(get_current_user)):
     """Dependency to require superuser access."""
     if not current_user.is_superuser:
+        logger.warning(f"Unauthorized admin access attempt by user {current_user.id} ({current_user.email})")
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
+
+@router.get("/verify")
+def verify_admin(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Verify if user has admin privileges. Used for admin login flow."""
+    is_admin = current_user.is_superuser
+    
+    if not is_admin:
+        logger.warning(f"Admin verification failed for user {current_user.id} ({current_user.email})")
+    
+    return {
+        "is_admin": is_admin,
+        "user_id": current_user.id,
+        "email": current_user.email
+    }
 
 @router.get("/stats")
 def get_admin_stats(
@@ -30,7 +50,7 @@ def get_admin_stats(
     ).scalar() or 0
     
     # Each credit purchase is $4 (5 credits for $20)
-    revenue_dollars = (total_revenue / 5) * 20
+    revenue_dollars = (total_revenue / 5) * 20 if total_revenue else 0
     
     # Resume status breakdown
     status_counts = db.query(
@@ -87,6 +107,9 @@ def update_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Log admin action
+    logger.info(f"Admin {current_user.id} updating user {user_id}: is_active={is_active}, is_superuser={is_superuser}, credits={credits}")
     
     if is_active is not None:
         user.is_active = is_active
