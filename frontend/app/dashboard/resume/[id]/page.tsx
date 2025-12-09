@@ -7,14 +7,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, CheckCircle, AlertCircle, RefreshCw, Download, FileText } from "lucide-react"
+import { Loader2, CheckCircle, AlertCircle, RefreshCw, Download, FileText, Settings } from "lucide-react"
 import { toast } from "sonner"
+import Link from "next/link"
 
 const TEMPLATES = [
   { id: "modern", name: "Modern", description: "Clean, contemporary design with accent colors" },
   { id: "classic", name: "Classic", description: "Traditional layout with serif fonts" },
   { id: "minimal", name: "Minimal", description: "Ultra-clean minimalist design" },
 ]
+
+// Helper to get all LLM config headers
+function getLLMHeaders(): Record<string, string> {
+  return {
+    "x-openai-key": localStorage.getItem("openai_api_key") || "",
+    "x-google-key": localStorage.getItem("google_api_key") || "",
+    "x-anthropic-key": localStorage.getItem("anthropic_api_key") || "",
+    "x-llm-provider": localStorage.getItem("llm_provider") || "google",
+    "x-llm-model": localStorage.getItem("llm_model") || "gemini-1.5-flash",
+  }
+}
 
 export default function ResumeDetailPage() {
   const params = useParams()
@@ -68,6 +80,8 @@ export default function ResumeDetailPage() {
           toast.success("Resume generation completed!")
         } else if (status === "waiting_input") {
           toast.info("Analysis complete. Please answer the questions.")
+        } else if (status === "failed") {
+          toast.error("Processing failed. Please check your API key settings.")
         }
       }
     }, 3000)
@@ -78,15 +92,25 @@ export default function ResumeDetailPage() {
   async function triggerAnalysis() {
     try {
       const token = localStorage.getItem("token")
-      const openaiKey = localStorage.getItem("openai_api_key") || ""
-      const googleKey = localStorage.getItem("google_api_key") || ""
+      const llmHeaders = getLLMHeaders()
+      
+      // Check if API key is configured
+      const provider = llmHeaders["x-llm-provider"]
+      const hasKey = 
+        (provider === "google" && llmHeaders["x-google-key"]) ||
+        (provider === "openai" && llmHeaders["x-openai-key"]) ||
+        (provider === "anthropic" && llmHeaders["x-anthropic-key"])
+      
+      if (!hasKey) {
+        toast.error("Please configure your API key in Settings first")
+        return
+      }
       
       const res = await fetch(`http://localhost:8000/api/v1/resumes/${id}/analyze`, {
         method: "POST",
         headers: { 
           "Authorization": `Bearer ${token}`,
-          "x-openai-key": openaiKey,
-          "x-google-key": googleKey
+          ...llmHeaders
         }
       })
       
@@ -114,16 +138,14 @@ export default function ResumeDetailPage() {
 
     try {
       const token = localStorage.getItem("token")
-      const openaiKey = localStorage.getItem("openai_api_key") || ""
-      const googleKey = localStorage.getItem("google_api_key") || ""
+      const llmHeaders = getLLMHeaders()
 
       const res = await fetch(`http://localhost:8000/api/v1/resumes/${id}/rewrite`, {
         method: "POST",
         headers: { 
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
-          "x-openai-key": openaiKey,
-          "x-google-key": googleKey
+          ...llmHeaders
         },
         body: JSON.stringify({ answers, template: selectedTemplate })
       })
@@ -176,6 +198,9 @@ export default function ResumeDetailPage() {
     )
   }
 
+  // Check for errors in analysis
+  const hasError = resume?.analysis_result?.error || resume?.status === "failed"
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -184,6 +209,12 @@ export default function ResumeDetailPage() {
           <p className="text-zinc-400 text-sm">Resume Analysis & Enhancement</p>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/dashboard/settings">
+            <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </Link>
           <Button variant="outline" onClick={() => fetchResume()} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -211,6 +242,34 @@ export default function ResumeDetailPage() {
         </div>
       </div>
 
+      {/* Error State */}
+      {hasError && (
+        <Card className="bg-red-900/30 border-red-700">
+          <CardContent className="py-6">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="h-6 w-6 text-red-400 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-lg font-semibold text-red-300">Processing Failed</h3>
+                <p className="text-red-200/80 mt-1">
+                  {resume?.analysis_result?.error || "An error occurred during processing."}
+                </p>
+                <div className="mt-4 flex gap-2">
+                  <Link href="/dashboard/settings">
+                    <Button variant="outline" className="border-red-600 text-red-300 hover:bg-red-900/30">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Check API Settings
+                    </Button>
+                  </Link>
+                  <Button onClick={triggerAnalysis} className="bg-red-600 hover:bg-red-700">
+                    Retry Analysis
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Col: Analysis Report */}
         <div className="space-y-6">
@@ -234,14 +293,41 @@ export default function ResumeDetailPage() {
                   <p>Generating enhanced resume...</p>
                   <p className="text-xs text-zinc-500 mt-2">Creating PDF and DOCX files</p>
                 </div>
-              ) : resume?.analysis_result ? (
+              ) : resume?.analysis_result && !hasError ? (
                 <div className="space-y-4">
+                  {/* Extracted Info */}
+                  {resume.analysis_result.candidate_info && (
+                    <div className="bg-zinc-800/50 p-3 rounded-lg">
+                      <h4 className="font-semibold text-white mb-2">Extracted Candidate Info</h4>
+                      <div className="text-sm text-zinc-400 space-y-1">
+                        {resume.analysis_result.candidate_info.name && (
+                          <p><span className="text-zinc-500">Name:</span> {resume.analysis_result.candidate_info.name}</p>
+                        )}
+                        {resume.analysis_result.candidate_info.email && (
+                          <p><span className="text-zinc-500">Email:</span> {resume.analysis_result.candidate_info.email}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div>
                     <h4 className="font-semibold text-white mb-2">Summary</h4>
                     <p className="text-sm text-zinc-400">{resume.analysis_result.summary}</p>
                   </div>
+                  
+                  {resume.analysis_result.strengths && (
+                    <div>
+                      <h4 className="font-semibold text-white mb-2">Strengths</h4>
+                      <ul className="list-disc pl-5 space-y-1 text-sm text-green-400/80">
+                        {resume.analysis_result.strengths.map((s: string, i: number) => (
+                          <li key={i}>{s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
                   <div>
-                    <h4 className="font-semibold text-white mb-2">Critical Issues</h4>
+                    <h4 className="font-semibold text-white mb-2">Issues to Address</h4>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-amber-400/80">
                       {resume.analysis_result.issues?.map((issue: string, i: number) => (
                         <li key={i}>{issue}</li>
@@ -249,7 +335,7 @@ export default function ResumeDetailPage() {
                     </ul>
                   </div>
                 </div>
-              ) : (
+              ) : !hasError ? (
                 <div className="space-y-2 text-center py-8">
                   <AlertCircle className="h-8 w-8 text-zinc-500 mx-auto mb-2" />
                   <p className="text-zinc-500">Waiting for analysis...</p>
@@ -259,7 +345,7 @@ export default function ResumeDetailPage() {
                     </Button>
                   )}
                 </div>
-              )}
+              ) : null}
             </CardContent>
           </Card>
         </div>
