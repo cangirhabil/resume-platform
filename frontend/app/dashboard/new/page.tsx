@@ -64,10 +64,8 @@ export default function NewResumePage() {
 
       const data = await res.json()
       toast.success("Resume uploaded successfully")
-      // Redirect to the analysis page (to be built)
-      // router.push(`/dashboard/resume/${data.id}`) 
-      // For now, go back to dashboard
-      router.push("/dashboard")
+      // Redirect to the analysis page
+      router.push(`/dashboard/resume/${data.id}`)
       
     } catch (error) {
       toast.error("Upload failed. Please try again.")

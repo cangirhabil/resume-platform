@@ -61,6 +61,25 @@ async def upload_resume(
     
     return {"id": resume.id, "status": resume.status, "filename": resume.original_filename}
 
+@router.get("/")
+def list_resumes(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """List all resumes for the current user"""
+    resumes = db.query(Resume).filter(Resume.user_id == current_user.id).order_by(Resume.created_at.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "original_filename": r.original_filename,
+            "status": r.status.value if r.status else "unknown",
+            "score": r.analysis_result.get("score") if r.analysis_result else None,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "updated_at": r.updated_at.isoformat() if r.updated_at else None,
+        }
+        for r in resumes
+    ]
+
 @router.get("/{resume_id}")
 def get_resume(
     resume_id: int, 

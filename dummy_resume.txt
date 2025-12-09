@@ -1,0 +1,18 @@
+Core function: 
+Summary We need a developer to build an AI-powered resume enhancement website. 
+Workflow: Candidate uploads resume (PDF or Word). 
+AI reviews resume and generates clarification questions. 
+Candidate answers via form. AI rewrites and enhances resume. 
+Final resume is exported in Word + PDF with proper formatting. 
+Candidate gets the rewritten resume in 2 formats: PDF & Word. 
+🎯 Core Features User Authentication & Multi-Session Management
+ JWT-based auth, work on multiple CVs simultaneously Resume 
+ Upload & AI Analysis Drag-and-drop upload, AWS S3 storage 
+ Multi-LLM integration (OpenAI, Anthropic, Azure) Background 
+ job processing with queue system Optimization Workflow 
+ AI-generated questions based on CV gaps User input collection,
+  resume enhancement Template System & PDF Generation Multiple
+   professional templates Real-time preview, on-demand PDF
+    generation Payment Integration Local payment gateway 
+    ntegration Premium feature gating Admin Panel User/resume
+     management, system configuration

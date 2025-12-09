@@ -4,111 +4,107 @@
     <meta charset="utf-8">
     <title>{{ personal_info.name if personal_info.name else 'Resume' }}</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap');
+        
         @page {
             size: A4;
             margin: 0;
         }
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #333;
-            line-height: 1.5;
+            font-family: 'Open Sans', 'Georgia', serif;
+            color: #2c2c2c;
+            line-height: 1.6;
             margin: 0;
             padding: 0;
             background: #fff;
         }
         .container {
-            padding: 40px 50px;
+            padding: 50px 60px;
         }
         .header {
-            border-bottom: 3px solid #3b82f6;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
+            text-align: center;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
         }
         .name {
-            font-size: 32px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #1e293b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
         }
         .contact {
-            margin-top: 10px;
             font-size: 13px;
-            color: #64748b;
+            color: #555;
         }
         .contact span {
-            margin-right: 20px;
+            margin: 0 10px;
+        }
+        .contact span:not(:last-child)::after {
+            content: "•";
+            margin-left: 20px;
+            color: #999;
         }
         .section {
             margin-bottom: 25px;
         }
         .section-title {
+            font-family: 'Merriweather', Georgia, serif;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             text-transform: uppercase;
-            color: #3b82f6;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            letter-spacing: 0.5px;
+            letter-spacing: 2px;
+            color: #1a1a1a;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
         }
         .item {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
         .item-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            align-items: baseline;
+            margin-bottom: 5px;
         }
         .position {
-            font-weight: bold;
+            font-weight: 600;
             font-size: 15px;
-            color: #1e293b;
+            color: #1a1a1a;
         }
         .company {
-            color: #475569;
-            font-weight: normal;
+            font-style: italic;
+            color: #444;
         }
         .date {
-            font-style: italic;
-            color: #64748b;
             font-size: 13px;
+            color: #666;
         }
         .summary {
-            text-align: justify;
-            margin-bottom: 20px;
-            color: #475569;
             font-size: 14px;
+            text-align: justify;
+            margin-bottom: 25px;
+            line-height: 1.7;
         }
         ul {
-            margin: 5px 0 0 20px;
+            margin: 8px 0 0 25px;
             padding: 0;
-            list-style-type: none;
         }
         li {
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             font-size: 14px;
-            position: relative;
-            padding-left: 15px;
         }
-        li::before {
-            content: "▪";
-            position: absolute;
-            left: 0;
-            color: #3b82f6;
+        .skills-list {
+            font-size: 14px;
         }
-        .skills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        .skills-list span {
+            display: inline-block;
+            margin-right: 5px;
         }
-        .skill-tag {
-            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 500;
+        .skills-list span:not(:last-child)::after {
+            content: ",";
         }
     </style>
 </head>
@@ -118,10 +114,10 @@
             <div class="name">{{ personal_info.name if personal_info else 'Your Name' }}</div>
             <div class="contact">
                 {% if personal_info %}
-                    {% if personal_info.email %}<span>📧 {{ personal_info.email }}</span>{% endif %}
-                    {% if personal_info.phone %}<span>📱 {{ personal_info.phone }}</span>{% endif %}
-                    {% if personal_info.linkedin %}<span>🔗 {{ personal_info.linkedin }}</span>{% endif %}
-                    {% if personal_info.location %}<span>📍 {{ personal_info.location }}</span>{% endif %}
+                    {% if personal_info.email %}<span>{{ personal_info.email }}</span>{% endif %}
+                    {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+                    {% if personal_info.linkedin %}<span>{{ personal_info.linkedin }}</span>{% endif %}
+                    {% if personal_info.location %}<span>{{ personal_info.location }}</span>{% endif %}
                 {% endif %}
             </div>
         </div>
@@ -137,15 +133,15 @@
 
         {% if experience %}
         <div class="section">
-            <div class="section-title">Experience</div>
+            <div class="section-title">Professional Experience</div>
             {% for exp in experience %}
             <div class="item">
                 <div class="item-header">
-                    <div class="position">{{ exp.title if exp.title else exp.position }} <span class="company">at {{ exp.company }}</span></div>
+                    <div class="position">{{ exp.title if exp.title else exp.position }} <span class="company">— {{ exp.company }}</span></div>
                     <div class="date">{{ exp.dates if exp.dates else (exp.start_date ~ ' - ' ~ exp.end_date) }}</div>
                 </div>
                 {% if exp.description %}
-                <p style="font-size: 14px; margin: 5px 0; color: #475569;">{{ exp.description }}</p>
+                <p style="font-size: 14px; margin: 8px 0;">{{ exp.description }}</p>
                 {% endif %}
                 {% if exp.details %}
                 <ul>
@@ -165,7 +161,7 @@
             {% for edu in education %}
             <div class="item">
                 <div class="item-header">
-                    <div class="position">{{ edu.degree }} - {{ edu.school if edu.school else edu.institution }}</div>
+                    <div class="position">{{ edu.degree }} — {{ edu.school if edu.school else edu.institution }}</div>
                     <div class="date">{{ edu.dates if edu.dates else edu.graduation_date }}</div>
                 </div>
             </div>
@@ -176,9 +172,9 @@
         {% if skills %}
         <div class="section">
             <div class="section-title">Skills</div>
-            <div class="skills">
+            <div class="skills-list">
                 {% for skill in skills %}
-                <span class="skill-tag">{{ skill }}</span>
+                <span>{{ skill }}</span>
                 {% endfor %}
             </div>
         </div>
@@ -190,7 +186,7 @@
             {% for project in projects %}
             <div class="item">
                 <div class="position">{{ project.name }}</div>
-                <p style="font-size: 14px; margin: 5px 0; color: #475569;">{{ project.description }}</p>
+                <p style="font-size: 14px; margin: 5px 0;">{{ project.description }}</p>
             </div>
             {% endfor %}
         </div>

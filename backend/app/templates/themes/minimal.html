@@ -4,111 +4,108 @@
     <meta charset="utf-8">
     <title>{{ personal_info.name if personal_info.name else 'Resume' }}</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
         @page {
             size: A4;
             margin: 0;
         }
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #111;
             line-height: 1.5;
             margin: 0;
             padding: 0;
             background: #fff;
+            font-size: 13px;
         }
         .container {
-            padding: 40px 50px;
+            padding: 45px 55px;
         }
         .header {
-            border-bottom: 3px solid #3b82f6;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
         .name {
-            font-size: 32px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #1e293b;
+            font-size: 28px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 8px;
         }
         .contact {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #64748b;
+            font-size: 12px;
+            color: #666;
+        }
+        .contact a {
+            color: #666;
+            text-decoration: none;
         }
         .contact span {
             margin-right: 20px;
         }
         .section {
-            margin-bottom: 25px;
+            margin-bottom: 22px;
         }
         .section-title {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            color: #3b82f6;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            letter-spacing: 0.5px;
+            letter-spacing: 1.5px;
+            color: #888;
+            margin-bottom: 12px;
         }
         .item {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         .item-header {
             display: flex;
             justify-content: space-between;
+            align-items: baseline;
             margin-bottom: 4px;
         }
         .position {
-            font-weight: bold;
-            font-size: 15px;
-            color: #1e293b;
-        }
-        .company {
-            color: #475569;
-            font-weight: normal;
-        }
-        .date {
-            font-style: italic;
-            color: #64748b;
-            font-size: 13px;
-        }
-        .summary {
-            text-align: justify;
-            margin-bottom: 20px;
-            color: #475569;
+            font-weight: 500;
             font-size: 14px;
         }
+        .company {
+            font-weight: 300;
+            color: #444;
+        }
+        .date {
+            font-size: 12px;
+            color: #888;
+            font-weight: 300;
+        }
+        .summary {
+            margin-bottom: 25px;
+            color: #333;
+        }
         ul {
-            margin: 5px 0 0 20px;
+            margin: 6px 0 0 18px;
             padding: 0;
             list-style-type: none;
         }
         li {
             margin-bottom: 4px;
-            font-size: 14px;
             position: relative;
-            padding-left: 15px;
+            padding-left: 12px;
         }
         li::before {
-            content: "▪";
+            content: "-";
             position: absolute;
             left: 0;
-            color: #3b82f6;
+            color: #999;
         }
         .skills {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
         .skill-tag {
-            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 3px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -118,17 +115,17 @@
             <div class="name">{{ personal_info.name if personal_info else 'Your Name' }}</div>
             <div class="contact">
                 {% if personal_info %}
-                    {% if personal_info.email %}<span>📧 {{ personal_info.email }}</span>{% endif %}
-                    {% if personal_info.phone %}<span>📱 {{ personal_info.phone }}</span>{% endif %}
-                    {% if personal_info.linkedin %}<span>🔗 {{ personal_info.linkedin }}</span>{% endif %}
-                    {% if personal_info.location %}<span>📍 {{ personal_info.location }}</span>{% endif %}
+                    {% if personal_info.email %}<span>{{ personal_info.email }}</span>{% endif %}
+                    {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+                    {% if personal_info.linkedin %}<span>{{ personal_info.linkedin }}</span>{% endif %}
+                    {% if personal_info.location %}<span>{{ personal_info.location }}</span>{% endif %}
                 {% endif %}
             </div>
         </div>
 
         {% if summary %}
         <div class="section">
-            <div class="section-title">Professional Summary</div>
+            <div class="section-title">About</div>
             <div class="summary">
                 {{ summary }}
             </div>
@@ -141,11 +138,11 @@
             {% for exp in experience %}
             <div class="item">
                 <div class="item-header">
-                    <div class="position">{{ exp.title if exp.title else exp.position }} <span class="company">at {{ exp.company }}</span></div>
-                    <div class="date">{{ exp.dates if exp.dates else (exp.start_date ~ ' - ' ~ exp.end_date) }}</div>
+                    <div class="position">{{ exp.title if exp.title else exp.position }} <span class="company">/ {{ exp.company }}</span></div>
+                    <div class="date">{{ exp.dates if exp.dates else (exp.start_date ~ ' — ' ~ exp.end_date) }}</div>
                 </div>
                 {% if exp.description %}
-                <p style="font-size: 14px; margin: 5px 0; color: #475569;">{{ exp.description }}</p>
+                <p style="margin: 6px 0; color: #444;">{{ exp.description }}</p>
                 {% endif %}
                 {% if exp.details %}
                 <ul>
@@ -165,7 +162,7 @@
             {% for edu in education %}
             <div class="item">
                 <div class="item-header">
-                    <div class="position">{{ edu.degree }} - {{ edu.school if edu.school else edu.institution }}</div>
+                    <div class="position">{{ edu.degree }} <span class="company">/ {{ edu.school if edu.school else edu.institution }}</span></div>
                     <div class="date">{{ edu.dates if edu.dates else edu.graduation_date }}</div>
                 </div>
             </div>
@@ -190,7 +187,7 @@
             {% for project in projects %}
             <div class="item">
                 <div class="position">{{ project.name }}</div>
-                <p style="font-size: 14px; margin: 5px 0; color: #475569;">{{ project.description }}</p>
+                <p style="margin: 4px 0; color: #444;">{{ project.description }}</p>
             </div>
             {% endfor %}
         </div>

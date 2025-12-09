@@ -17,7 +17,7 @@ async def extract_text_from_pdf(file_bytes: bytes) -> str:
 #        full_text.append(para.text)
 #    return '\n'.join(full_text)
 
-def extract_text(file_path: str) -> str:
+async def extract_text(file_path: str) -> str:
     from app.core.storage import storage
     import io
 
@@ -40,13 +40,11 @@ def extract_text(file_path: str) -> str:
              # Actually extract_text_from_pdf is async, but we are calling it from here.
              # Ideally this function should be async.
              # For MVP hack, let's just make extract_text_from_pdf sync or run loop
-             import asyncio
-             return asyncio.run(extract_text_from_pdf(file_content))
+             return await extract_text_from_pdf(file_content)
              
     # Local Handling
     if file_path.endswith(".pdf"):
         with open(file_path, "rb") as f:
-            import asyncio
-            return asyncio.run(extract_text_from_pdf(f.read()))
+            return await extract_text_from_pdf(f.read())
             
     return ""

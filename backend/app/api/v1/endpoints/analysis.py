@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.models import Resume, ResumeStatus, User
+from app.models import Resume, ResumeStatus, User, CreditTransaction
 from app.core import security
 from app.utils.text_extractor import extract_text
 from app.services.analyzer import analyze_resume_text
@@ -10,7 +10,7 @@ import json
 
 router = APIRouter()
 
-async def process_analysis(resume_id: int, db: Session):
+async def process_analysis(resume_id: int, db: Session, api_keys: dict = None):
     resume = db.query(Resume).filter(Resume.id == resume_id).first()
     if not resume:
         return
@@ -23,7 +23,7 @@ async def process_analysis(resume_id: int, db: Session):
         text = await extract_text(resume.s3_key_original)
         
         # Analyze with LLM
-        analysis_result = await analyze_resume_text(text)
+        analysis_result = await analyze_resume_text(text, api_keys)
         
         # Save Result
         resume.analysis_result = analysis_result

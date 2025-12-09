@@ -18,7 +18,7 @@ Structure:
 Ensure all descriptions are action-oriented and quantifiable.
 """
 
-async def rewrite_resume(original_text: str, user_answers: Dict[str, str], api_keys: Dict[str, str] = None) -> Dict[str, Any]:
+async def rewrite_resume(original_text: str, analysis_result: Dict[str, Any], user_answers: Dict[str, str], api_keys: Dict[str, str] = None) -> Dict[str, Any]:
     prompt = f"""
     Original Resume Text:
     {original_text[:40000]}

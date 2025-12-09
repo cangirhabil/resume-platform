@@ -1,17 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Body, Request
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models import Resume, ResumeStatus, User
 from app.services.rewriter import rewrite_resume
 from app.utils.text_extractor import extract_text
 from app.api.v1.endpoints.upload import get_current_user
-from typing import Dict
+from typing import Dict, Optional
+import os
 
 router = APIRouter()
 
-# Duplicating logic from analysis because I can't circular import easily with the current file structure
-# Ideally should move logic to controller/service layer
-async def process_rewrite(resume_id: int, answers: Dict[str, str], db: Session):
+async def process_rewrite(resume_id: int, answers: Dict[str, str], template: str, db: Session, api_keys: dict = None):
     resume = db.query(Resume).filter(Resume.id == resume_id).first()
     if not resume:
         return
@@ -26,77 +26,79 @@ async def process_rewrite(resume_id: int, answers: Dict[str, str], db: Session):
         # Rewrite
         analysis = resume.analysis_result
         if not analysis:
-             # Fallback if analysis missing (shouldn't happen)
-             analysis = {}
+            analysis = {}
 
-        rewritten_content = await rewrite_resume(text, analysis, answers)
-        
-        # Save Result
-        # We need a column for this too! 'generated_content' (JSON)
-        # Using analysis_result temporarly or reusing a field?
-        # Let's verify models.py. We only added analysis_result.
-        # We need to add 'generated_content' to models.py
-        
-        # Hack for now: Store it in analysis_result under a new key 'rewritten_version'
-        # Or just append to analysis_result
-        # new_result = dict(resume.analysis_result) # Removed this block
-        # new_result['rewritten_version'] = rewritten_content
-        
-        # FORCE UPDATE: SQLAlchemy sometimes doesn't detect mutation of JSON dict
-        # resume.analysis_result = new_result
-        # from sqlalchemy.orm.attributes import flag_modified
-        # flag_modified(resume, "analysis_result")
+        rewritten_content = await rewrite_resume(text, analysis, answers, api_keys)
         
         # GENERATE PDF
-        from app.services.pdf_generator import pdf_generator # Changed to absolute import
-        from app.core.storage import storage # Changed to absolute import
-        pdf_bytes = pdf_generator.generate(rewritten_content, theme="modern")
+        from app.services.pdf_generator import pdf_generator
+        from app.core.storage import storage
+        
+        pdf_bytes = pdf_generator.generate(rewritten_content, theme=template)
+        docx_bytes = pdf_generator.generate_docx(rewritten_content)
         
         # SAVE PDF
-        # import io # Removed
-        # from fastapi import UploadFile # Removed
-        # UploadFile wrapper hack for our storage service which expects UploadFile
-        # Or we can just modify storage service to accept bytes.
-        # Let's modify storage service slightly or just mock it here?
-        # Actually storage service takes UploadFile. Let's make it more flexible later.
-        # For now, let's write to a temp file and upload? No that's slow.
-        # Let's just quick fix:
+        pdf_filename = f"{resume.user_id}/generated_{resume.id}.pdf"
+        docx_filename = f"{resume.user_id}/generated_{resume.id}.docx"
         
-        filename = f"{resume.user_id}/generated_{resume.id}.pdf"
-        # We need a way to upload bytes directly. 
-        # I'll update StorageService to support bytes or create a BytesIO wrapper.
-        
-        # Assuming we update StorageService... let's just do it directly here for now to save time
-        # if using local storage
+        # Save to local storage
         if storage.local_storage_path:
-             full_path = os.path.join(storage.local_storage_path, filename)
-             os.makedirs(os.path.dirname(full_path), exist_ok=True)
-             with open(full_path, "wb") as f:
-                 f.write(pdf_bytes)
-             # resume.s3_key_generated_pdf = full_path # Changed to filename
+            # PDF
+            pdf_path = os.path.join(storage.local_storage_path, pdf_filename)
+            os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+            with open(pdf_path, "wb") as f:
+                f.write(pdf_bytes)
+            
+            # DOCX
+            docx_path = os.path.join(storage.local_storage_path, docx_filename)
+            with open(docx_path, "wb") as f:
+                f.write(docx_bytes)
         
         # UPDATE DB
-        resume.s3_key_generated_pdf = filename # in local mode, this is relative path
+        resume.s3_key_generated_pdf = pdf_filename
+        resume.s3_key_generated_docx = docx_filename
         resume.status = ResumeStatus.COMPLETED
         db.commit()
         
     except Exception as e:
         print(f"Rewrite Failed: {e}")
+        import traceback
+        with open("rewrite_error.log", "w") as f:
+            f.write(f"Rewrite Failed: {str(e)}\n")
+            f.write(traceback.format_exc())
         resume.status = ResumeStatus.FAILED
         db.commit()
 
+class RewriteRequest(BaseModel):
+    answers: Dict[str, str]
+    template: Optional[str] = "modern"
+
 @router.post("/{resume_id}/rewrite")
-async def start_rewrite( # Renamed function
+async def start_rewrite(
     resume_id: int, 
-    answers: Dict[str, str] = Body(...),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
+    request_body: RewriteRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    answers = request_body.answers
+    template = request_body.template or "modern"
+    
+    # Validate template
+    valid_templates = ["modern", "classic", "minimal"]
+    if template not in valid_templates:
+        template = "modern"
+    
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
-        
-    background_tasks.add_task(process_rewrite, resume.id, answers, db)
     
-    return {"message": "Rewrite started", "status": "generating"}
+    # Extract API keys from headers
+    openai_key = request.headers.get("x-openai-key")
+    google_key = request.headers.get("x-google-key")
+    api_keys = {"openai": openai_key, "google": google_key}
+    
+    background_tasks.add_task(process_rewrite, resume.id, answers, template, db, api_keys)
+    
+    return {"message": "Rewrite started", "status": "generating", "template": template}
