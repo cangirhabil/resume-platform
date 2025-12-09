@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
@@ -23,19 +24,19 @@ export const Navbar = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={cn(
-          "pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 border border-white/5",
+          "pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 border",
           scrolled 
-            ? "bg-black/40 backdrop-blur-xl w-[90%] md:w-[60%] lg:w-[40%] shadow-2xl shadow-black/50" 
+            ? "bg-[var(--surface)]/80 backdrop-blur-xl w-[90%] md:w-[60%] lg:w-[40%] shadow-2xl border-[var(--border)]" 
             : "bg-transparent w-full max-w-7xl border-transparent"
         )}
       >
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs relative overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-fab-red to-fab-blue flex items-center justify-center text-white font-bold text-xs relative overflow-hidden">
             <span className="relative z-10">R</span>
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </div>
           <span className={cn(
-             "font-semibold tracking-tight transition-all duration-300",
+             "font-semibold tracking-tight transition-all duration-300 text-[var(--foreground)]",
              scrolled ? "text-sm" : "text-lg"
           )}>
             ResumeAI
@@ -47,27 +48,27 @@ export const Navbar = () => {
             <Link 
               key={item} 
               href={`#${item.toLowerCase()}`}
-              className="text-sm font-medium text-zinc-400 hover:text-white transition-colors relative group"
+              className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors relative group"
             >
               {item}
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all group-hover:w-full" />
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--foreground)] transition-all group-hover:w-full" />
             </Link>
           ))}
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link 
             href="/login"
-            className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
           >
             Log in
           </Link>
           <Link
             href="/signup" 
-            className="group relative inline-flex h-9 items-center justify-center overflow-hidden rounded-full bg-white px-6 font-medium text-neutral-900 transition-all hover:bg-zinc-200"
+            className="group relative inline-flex h-9 items-center justify-center overflow-hidden rounded-full bg-fab-red px-6 font-medium text-white transition-all hover:scale-105"
           >
             <span className="text-xs font-bold">Get Started</span>
-            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 transition-opacity group-hover:opacity-10" />
           </Link>
         </div>
       </motion.nav>

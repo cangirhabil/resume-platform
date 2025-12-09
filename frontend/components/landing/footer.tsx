@@ -1,127 +1,87 @@
 "use client"
 
+import { Terminal } from "lucide-react"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import { Sparkles, Github, Twitter, Linkedin, Mail, ExternalLink } from "lucide-react"
 
-export function Footer() {
-  const currentYear = new Date().getFullYear()
-
-  const footerLinks = {
-    product: [
-      { label: "Features", href: "#features" },
-      { label: "Pricing", href: "#pricing" },
-      { label: "Templates", href: "#templates" },
-    ],
-    company: [
-      { label: "About", href: "/about" },
-      { label: "Blog", href: "/blog" },
-      { label: "Careers", href: "/careers" },
-    ],
-    legal: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-      { label: "Cookies", href: "/cookies" },
-    ],
-  }
-
-  const socialLinks = [
-    { icon: Github, href: "https://github.com", label: "GitHub" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-    { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  ]
-
+export const Footer = () => {
   return (
-    <footer className="relative border-t border-white/10 bg-black/20 backdrop-blur-sm">
-      <div className="section-container py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
+    <footer className="bg-[var(--background)] border-t border-[var(--border)] pt-20 pb-10 transition-colors duration-300">
+      <div className="container px-4 mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
           {/* Brand Column */}
-          <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+          <div className="md:col-span-1 space-y-6">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-full bg-fab-red/20 flex items-center justify-center text-fab-red">
+                <Terminal className="w-4 h-4" />
               </div>
-              <span className="text-xl font-bold gradient-text">ResumeAI</span>
+              <span className="font-barlow font-bold text-2xl tracking-tighter uppercase text-[var(--foreground)]">
+                ResumeAI
+              </span>
             </Link>
-            <p className="text-sm text-zinc-400 mb-6 max-w-sm">
-              Transform your resume with AI-powered analysis and enhancement. 
-              Land your dream job with a resume that stands out.
+            <p className="font-sans text-[var(--muted-foreground)] text-sm leading-relaxed max-w-xs">
+              Intelligent agents working 24/7 to perfect your professional narrative.
             </p>
-
-            {/* Badges */}
-            <div className="flex flex-wrap gap-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-xs text-cyan-400">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                AI Powered
+            <div className="flex items-center gap-2">
+              <div className="px-2 py-1 rounded bg-[var(--surface)] border border-[var(--border)]">
+                <span className="font-pixel text-[10px] text-[var(--muted-foreground)]">V2.0.4 STABLE</span>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-xs text-violet-400">
-                ATS Optimized
-              </div>
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             </div>
           </div>
 
-          {/* Product Links */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Product</h4>
-            <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-zinc-400 hover:text-white transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Links Columns */}
+          <div className="md:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-8">
+            <div className="space-y-4">
+              <h4 className="font-pixel text-xs text-[var(--muted-foreground)] uppercase tracking-widest">Platform</h4>
+              <ul className="space-y-2">
+                {["Analysis", "Rewrite", "Templates", "Export"].map(item => (
+                  <li key={item}>
+                    <Link href="#" className="font-sans text-sm text-[var(--muted-foreground)] hover:text-fab-red transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-pixel text-xs text-[var(--muted-foreground)] uppercase tracking-widest">Company</h4>
+              <ul className="space-y-2">
+                {["About", "Careers", "Blog", "Press"].map(item => (
+                  <li key={item}>
+                    <Link href="#" className="font-sans text-sm text-[var(--muted-foreground)] hover:text-fab-red transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Company Links */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Company</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-zinc-400 hover:text-white transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Legal</h4>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-zinc-400 hover:text-white transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-4">
+              <h4 className="font-pixel text-xs text-[var(--muted-foreground)] uppercase tracking-widest">Legal</h4>
+              <ul className="space-y-2">
+                {["Privacy", "Terms", "Security", "Cookies"].map(item => (
+                  <li key={item}>
+                    <Link href="#" className="font-sans text-sm text-[var(--muted-foreground)] hover:text-fab-red transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-zinc-500">
-            © {currentYear} ResumeAI. All rights reserved.
+        <div className="pt-8 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="font-sans text-xs text-[var(--muted-foreground)]">
+            © {new Date().getFullYear()} ResumeAI Inc. All rights reserved.
           </p>
-
-          {/* Social Links */}
-          <div className="flex items-center gap-4">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 hover:scale-110 transition-all"
-                aria-label={social.label}
-              >
-                <social.icon className="w-4 h-4" />
-              </a>
+          <div className="flex items-center gap-6">
+            {["Twitter", "GitHub", "Discord", "LinkedIn"].map(social => (
+              <Link key={social} href="#" className="font-sans text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors uppercase tracking-wider">
+                {social}
+              </Link>
             ))}
           </div>
         </div>
