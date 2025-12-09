@@ -7,9 +7,32 @@ logger = logging.getLogger(__name__)
 
 # Available models per provider
 AVAILABLE_MODELS = {
-    "google": ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"],
-    "openai": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
-    "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"],
+    "google": [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-pro",
+        "gemini-2.0-flash",
+        "gemini-3-pro-preview",
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+    ],
+    "openai": [
+        "gpt-5.1-2025-11-13",
+        "gpt-5-pro-2025-10-06",
+        "gpt-5-mini-2025-08-07",
+        "gpt-5-nano-2025-08-07",
+        "gpt-5-2025-08-07",
+        "gpt-4.1-2025-04-14",
+        "gpt-4o",
+        "gpt-4o-mini",
+    ],
+    "anthropic": [
+        "claude-sonnet-4-5",
+        "claude-haiku-4-5",
+        "claude-opus-4-5",
+        "claude-3-5-sonnet-20241022",
+        "claude-3-haiku-20240307",
+    ],
 }
 
 class LLMService:
@@ -78,11 +101,11 @@ class LLMService:
         # Default models if not specified
         if not active_model:
             if active_provider == "google":
-                active_model = "gemini-1.5-flash"
+                active_model = "gemini-2.5-flash"
             elif active_provider == "openai":
-                active_model = "gpt-4o"
+                active_model = "gpt-5.1-2025-11-13"
             elif active_provider == "anthropic":
-                active_model = "claude-3-5-sonnet-20241022"
+                active_model = "claude-sonnet-4-5"
                 
         logger.info(f"LLM Request: provider={active_provider}, model={active_model}, has_key={bool(active_key)}")
         

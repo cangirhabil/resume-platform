@@ -17,24 +17,36 @@ const PROVIDERS = [
 
 const MODELS = {
   google: [
-    { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash (Fast)", recommended: true },
-    { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro (Advanced)" },
-    { id: "gemini-2.0-flash-exp", name: "Gemini 2.0 Flash (Experimental)" },
+    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", recommended: true },
+    { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite (Fast)" },
+    { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro (Advanced)" },
+    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
+    { id: "gemini-3-pro-preview", name: "Gemini 3 Pro (Preview)" },
+    { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
+    { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
   ],
   openai: [
-    { id: "gpt-4o", name: "GPT-4o (Recommended)", recommended: true },
-    { id: "gpt-4o-mini", name: "GPT-4o Mini (Faster)" },
-    { id: "gpt-4-turbo", name: "GPT-4 Turbo" },
+    { id: "gpt-5.1-2025-11-13", name: "GPT-5.1 (Latest)", recommended: true },
+    { id: "gpt-5-pro-2025-10-06", name: "GPT-5 Pro (Advanced)" },
+    { id: "gpt-5-mini-2025-08-07", name: "GPT-5 Mini (Fast)" },
+    { id: "gpt-5-nano-2025-08-07", name: "GPT-5 Nano (Fastest)" },
+    { id: "gpt-5-2025-08-07", name: "GPT-5" },
+    { id: "gpt-4.1-2025-04-14", name: "GPT-4.1" },
+    { id: "gpt-4o", name: "GPT-4o" },
+    { id: "gpt-4o-mini", name: "GPT-4o Mini" },
   ],
   anthropic: [
-    { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet (Best)", recommended: true },
-    { id: "claude-3-haiku-20240307", name: "Claude 3 Haiku (Fast)" },
+    { id: "claude-sonnet-4-5", name: "Claude 4.5 Sonnet", recommended: true },
+    { id: "claude-haiku-4-5", name: "Claude 4.5 Haiku (Fast)" },
+    { id: "claude-opus-4-5", name: "Claude 4.5 Opus (Best)" },
+    { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet" },
+    { id: "claude-3-haiku-20240307", name: "Claude 3 Haiku" },
   ],
 }
 
 export default function SettingsPage() {
   const [provider, setProvider] = useState("google")
-  const [model, setModel] = useState("gemini-1.5-flash")
+  const [model, setModel] = useState("gemini-2.5-flash")
   const [openaiKey, setOpenaiKey] = useState("")
   const [geminiKey, setGeminiKey] = useState("")
   const [anthropicKey, setAnthropicKey] = useState("")
