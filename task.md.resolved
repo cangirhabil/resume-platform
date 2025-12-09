@@ -1,0 +1,39 @@
+# Tasks
+
+## Phase 1: Foundation & Core Logic
+- [ ] **Project Initialization**
+    - [x] Setup Next.js 16 Frontend (React, TypeScript, Tailwind, Shadcn UI)
+    - [x] Setup FastAPI Backend (Python, PostgreSQL, SQLAlchemy)
+    - [x] Configure Docker/Compose for local dev (DB, Redis)
+- [ ] **Authentication & User Management**
+    - [x] Implement Main DB Schema (Users, Resumes)
+    - [x] Set up JWT Authentication (FastAPI + Next.js Middleware)
+- [ ] **File System & Basic Processing**
+    - [ ] Implement AWS S3 Upload (Drag & Drop)
+    - [ ] Text Extraction Service (PyPDF2/Word)
+
+## Phase 2: AI Integration & Workflow
+- [ ] **AI Core Services**
+    - [ ] LLM Client Setup (OpenAI/Anthropic/Azure/Google Adapter)
+    - [ ] Resume Analysis Prompting & Logic
+    - [ ] Clarification Question Generation
+- [ ] **User Interaction Loop**
+    - [ ] Frontend: Question Answer Form
+    - [ ] AI Rewrite Engine (incorporating answers)
+    - [ ] Background Job Processing (Celery/Redis integration)
+- [ ] **Document Generation**
+    - [ ] Template Engine Setup
+    - [ ] PDF Generation Service (WeasyPrint)
+    - [ ] Word Generation Service
+
+## Phase 3: Polish, Monetization & Launch
+- [ ] **Monetization**
+    - [ ] Payment Gateway Integration (Stripe Credit System W/ Webhooks)
+    - [ ] Premium Feature Locking (Credit Usage Logic)
+- [ ] **Admin & Operations**
+    - [ ] Admin Dashboard (Metrics, User Mgmt)
+    - [ ] System Configuration
+- [ ] **Production Readiness**
+    - [ ] Security Audit & Rate Limiting
+    - [ ] Final UI/UX Polish (Animations, Transitions)
+    - [ ] Deployment Configuration (Vercel/Railway)

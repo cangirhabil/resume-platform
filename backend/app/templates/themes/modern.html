@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ personal_info.full_name }} - Resume</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+        .container {
+            padding: 40px 50px;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .name {
+            font-size: 32px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #2c3e50;
+        }
+        .contact {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .contact span {
+            margin-right: 15px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .item {
+            margin-bottom: 15px;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        .position {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .company {
+            color: #444;
+        }
+        .date {
+            font-style: italic;
+            color: #666;
+            font-size: 14px;
+        }
+        .summary {
+            text-align: justify;
+            margin-bottom: 20px;
+        }
+        ul {
+            margin: 5px 0 0 20px;
+            padding: 0;
+            list-style-type: square;
+        }
+        li {
+            margin-bottom: 3px;
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .skill-tag {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="name">{{ personal_info.full_name }}</div>
+            <div class="contact">
+                {% if personal_info.email %}<span>{{ personal_info.email }}</span>{% endif %}
+                {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+                {% if personal_info.linkedin %}<span>{{ personal_info.linkedin }}</span>{% endif %}
+                {% if personal_info.location %}<span>{{ personal_info.location }}</span>{% endif %}
+            </div>
+        </div>
+
+        {% if summary %}
+        <div class="section">
+            <div class="section-title">Professional Summary</div>
+            <div class="summary">
+                {{ summary }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if experience %}
+        <div class="section">
+            <div class="section-title">Experience</div>
+            {% for exp in experience %}
+            <div class="item">
+                <div class="item-header">
+                    <div class="position">{{ exp.position }} <span class="company">at {{ exp.company }}</span></div>
+                    <div class="date">{{ exp.start_date }} - {{ exp.end_date }}</div>
+                </div>
+                <ul>
+                    {% for detail in exp.details %}
+                    <li>{{ detail }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if education %}
+        <div class="section">
+            <div class="section-title">Education</div>
+            {% for edu in education %}
+            <div class="item">
+                <div class="item-header">
+                    <div class="position">{{ edu.degree }} - {{ edu.institution }}</div>
+                    <div class="date">{{ edu.graduation_date }}</div>
+                </div>
+                {% if edu.details %}
+                <ul>
+                     {% for detail in edu.details %}
+                    <li>{{ detail }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if skills %}
+        <div class="section">
+            <div class="section-title">Skills</div>
+            <div class="skills">
+                {% for skill in skills %}
+                <span class="skill-tag">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
