@@ -26,7 +26,7 @@ export const Navbar = () => {
         className={cn(
           "pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 border",
           scrolled 
-            ? "bg-[var(--surface)]/80 backdrop-blur-xl w-[90%] md:w-[60%] lg:w-[40%] shadow-2xl border-[var(--border)]" 
+            ? "bg-[var(--surface)]/80 backdrop-blur-xl w-[95%] md:w-[90%] lg:w-[75%] xl:w-[60%] shadow-2xl border-[var(--border)]" 
             : "bg-transparent w-full max-w-7xl border-transparent"
         )}
       >
@@ -43,7 +43,7 @@ export const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-5">
           {["Features", "Process", "Pricing"].map((item) => (
             <Link 
               key={item} 
