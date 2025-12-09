@@ -74,7 +74,7 @@ export default function DashboardLayout({
       <aside className="w-64 border-r border-zinc-800 bg-zinc-900/50 hidden md:block">
         <div className="p-6 border-b border-zinc-800">
           <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-            ResumeAI
+            ResumeRefine AI
           </h1>
         </div>
         <nav className="p-4 space-y-2">
@@ -84,7 +84,10 @@ export default function DashboardLayout({
           <Link href="/dashboard/new" className="block px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition">
             New Resume
           </Link>
-          <div className="pt-4 mt-4 border-t border-zinc-800">
+          <div className="pt-4 mt-4 border-t border-zinc-800 space-y-2">
+             <Link href="/dashboard/settings" className="block px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition">
+                Settings
+             </Link>
              <Button onClick={handleBuyCredits} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                  Buy 5 Credits ($20)
              </Button>

@@ -13,7 +13,7 @@ You must output a structured JSON containing a score (0-100), a list of 'issues'
 The 'clarification_questions' should be specific questions to ask the candidate to gather missing info.
 """
 
-async def analyze_resume_text(text: str) -> Dict[str, Any]:
+async def analyze_resume_text(text: str, api_keys: Dict[str, str] = None) -> Dict[str, Any]:
     prompt = f"""
     Analyze the following resume text:
     
@@ -22,5 +22,5 @@ async def analyze_resume_text(text: str) -> Dict[str, Any]:
     Return a JSON with keys: 'score', 'summary', 'issues' (list of strings), 'clarification_questions' (list of strings).
     """
     
-    result = await llm.generate_json(prompt, ANALYSIS_SYSTEM_PROMPT)
+    result = await llm.generate_json(prompt, ANALYSIS_SYSTEM_PROMPT, api_keys)
     return result

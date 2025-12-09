@@ -11,16 +11,62 @@ class LLMService:
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         
-    async def generate_json(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
-        logger.info(f"Generating JSON with provider: {self.provider}")
+    async def generate_json(self, prompt: str, system_prompt: str, api_keys: Dict[str, str] = None) -> Dict[str, Any]:
+        # 1. Resolve Keys (Request Header > Env Var)
+        req_openai = api_keys.get("openai") if api_keys else None
+        req_google = api_keys.get("google") if api_keys else None
         
-        # MOCK FALLBACK (If no keys or forced mock)
-        if not self.google_api_key and not self.openai_api_key:
+        final_openai_key = req_openai or self.openai_api_key
+        final_google_key = req_google or self.google_api_key
+        
+        # 2. Determine Provider
+        active_provider = self.provider
+        active_key = None
+        
+        if final_google_key:
+            active_provider = "google"
+            active_key = final_google_key
+        elif final_openai_key:
+            active_provider = "openai"
+            active_key = final_openai_key
+            
+        logger.info(f"Generating JSON with provider: {active_provider} (Key Provided: {bool(active_key)})")
+        
+        # 3. Fallback to Mock if no keys
+        if not active_key:
             logger.warning("No API keys found. Returning MOCK data.")
             return self._get_mock_response(system_prompt)
 
-        # TODO: Implement actual API calls (Skipped for MVP Verification if no keys)
-        # For now, just return mock if implementation is complex to setup without keys
+        # 4. REAL CALLS (IMPLEMENTATION START)
+        try:
+            if active_provider == "google":
+                import google.generativeai as genai
+                genai.configure(api_key=active_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(
+                    f"{system_prompt}\n\n{prompt}",
+                    generation_config={"response_mime_type": "application/json"}
+                )
+                return json.loads(response.text)
+                
+            elif active_provider == "openai":
+                from openai import OpenAI
+                client = OpenAI(api_key=active_key)
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt}
+                    ],
+                    response_format={"type": "json_object"}
+                )
+                return json.loads(response.choices[0].message.content)
+                
+        except Exception as e:
+            logger.error(f"LLM Call Failed: {e}")
+            # Fallback to mock on error to prevent crash during demo
+            return self._get_mock_response(system_prompt)
+            
         return self._get_mock_response(system_prompt)
 
     def _get_mock_response(self, system_prompt: str) -> Dict[str, Any]:

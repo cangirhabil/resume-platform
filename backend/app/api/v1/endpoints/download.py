@@ -20,8 +20,22 @@ def download_resume(
         raise HTTPException(status_code=404, detail="Resume not found")
         
     if format == "pdf":
-        if not resume.s3_key_generated_pdf or not os.path.exists(resume.s3_key_generated_pdf):
+        if not resume.s3_key_generated_pdf:
              raise HTTPException(status_code=404, detail="PDF not generated yet")
+             
+        # Check if S3
+        if resume.s3_key_generated_pdf.startswith("s3://"):
+             from app.core.storage import storage
+             url = storage.get_file_url(resume.s3_key_generated_pdf)
+             if not url:
+                 raise HTTPException(status_code=500, detail="Could not generate download URL")
+             from fastapi.responses import RedirectResponse
+             return RedirectResponse(url=url)
+             
+        # Local
+        if not os.path.exists(resume.s3_key_generated_pdf):
+             raise HTTPException(status_code=404, detail="PDF file missing on server")
+             
         return FileResponse(resume.s3_key_generated_pdf, media_type="application/pdf", filename=f"resume_{resume_id}.pdf")
     
     raise HTTPException(status_code=400, detail="Unsupported format")

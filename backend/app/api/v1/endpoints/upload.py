@@ -41,7 +41,7 @@ async def upload_resume(
     unique_filename = f"{current_user.id}/{uuid.uuid4()}{file_ext}"
     
     # Upload
-    location = await storage.upload_file(file, unique_filename)
+    location = await storage.save_file(file, unique_filename)
     
     # Create Record
     resume = Resume(

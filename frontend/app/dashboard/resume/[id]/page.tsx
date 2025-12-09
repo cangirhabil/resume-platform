@@ -45,9 +45,16 @@ export default function ResumeDetailPage() {
   async function triggerAnalysis() {
     try {
       const token = localStorage.getItem("token")
+      const openaiKey = localStorage.getItem("openai_api_key") || ""
+      const googleKey = localStorage.getItem("google_api_key") || ""
+      
       await fetch(`http://localhost:8000/api/v1/resumes/${id}/analyze`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { 
+            "Authorization": `Bearer ${token}`,
+            "x-openai-key": openaiKey,
+            "x-google-key": googleKey
+        }
       })
       toast.info("Analysis started...")
       // In real app, start polling
@@ -139,11 +146,16 @@ export default function ResumeDetailPage() {
                         
                         // Submit
                          const token = localStorage.getItem("token")
+                         const openaiKey = localStorage.getItem("openai_api_key") || ""
+                         const googleKey = localStorage.getItem("google_api_key") || ""
+
                          fetch(`http://localhost:8000/api/v1/resumes/${id}/rewrite`, {
                             method: "POST",
                             headers: { 
                                 "Authorization": `Bearer ${token}`,
-                                "Content-Type": "application/json"
+                                "Content-Type": "application/json",
+                                "x-openai-key": openaiKey,
+                                "x-google-key": googleKey
                             },
                             body: JSON.stringify(answers)
                          })

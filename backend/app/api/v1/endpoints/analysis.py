@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models import Resume, ResumeStatus, User
@@ -39,6 +39,7 @@ async def process_analysis(resume_id: int, db: Session):
 async def start_analysis(
     resume_id: int, 
     background_tasks: BackgroundTasks,
+    request: Request, # Get Request object
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -59,6 +60,11 @@ async def start_analysis(
     db.add(trx)
     db.commit() # Commit deduction immediately
 
-    background_tasks.add_task(process_analysis, resume.id, db)
+    # Extract Keys from Headers
+    openai_key = request.headers.get("x-openai-key")
+    google_key = request.headers.get("x-google-key")
+    api_keys = {"openai": openai_key, "google": google_key}
+
+    background_tasks.add_task(process_analysis, resume.id, db, api_keys)
     
     return {"message": "Analysis started", "status": "analyzing"}
