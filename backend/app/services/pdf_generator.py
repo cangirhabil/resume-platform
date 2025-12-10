@@ -23,7 +23,7 @@ class PDFGenerator:
     def __init__(self):
         self.template_dir = os.path.join(os.path.dirname(__file__), "../templates")
         self.env = Environment(loader=FileSystemLoader(self.template_dir))
-        self.available_templates = ["professional", "modern", "classic", "minimal"]
+        self.available_templates = ["professional", "modern", "classic", "traditional", "minimal"]
 
     def get_available_templates(self) -> List[str]:
         """Returns list of available template names."""
@@ -330,6 +330,347 @@ class PDFGenerator:
         
         return pdf.output()
 
+    def generate_classic(self, data: dict) -> bytes:
+        """Generate PDF using classic template - simple with dates on left margin."""
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        
+        personal_info = data.get("personal_info", {})
+        name = self._clean_text(personal_info.get("name", "Your Name"))
+        
+        # HEADER - Centered name
+        pdf.set_font("Times", "B", 18)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 10, name.upper(), ln=True, align="C")
+        
+        # Contact info centered
+        contact_parts = []
+        if personal_info.get("location"):
+            contact_parts.append(personal_info["location"])
+        if personal_info.get("phone"):
+            contact_parts.append(personal_info["phone"])
+        if personal_info.get("email"):
+            contact_parts.append(personal_info["email"])
+        
+        if contact_parts:
+            pdf.set_font("Times", "", 10)
+            pdf.cell(0, 5, self._clean_text(" | ".join(contact_parts)), ln=True, align="C")
+        
+        pdf.ln(3)
+        
+        # PROFILE/SUMMARY
+        summary = data.get("summary", "")
+        if summary:
+            self._add_classic_section(pdf, "PROFILE")
+            pdf.set_font("Times", "", 10)
+            pdf.set_text_color(40, 40, 40)
+            pdf.multi_cell(0, 5, self._clean_text(summary))
+            pdf.ln(3)
+        
+        # EXPERIENCE
+        experience = data.get("experience", [])
+        if experience:
+            self._add_classic_section(pdf, "EMPLOYMENT HISTORY")
+            for exp in experience:
+                title = self._clean_text(exp.get("title", ""))
+                company = self._clean_text(exp.get("company", ""))
+                location = self._clean_text(exp.get("location", ""))
+                dates = self._clean_text(exp.get("dates", ""))
+                
+                # Dates left, title/company right
+                pdf.set_font("Times", "I", 9)
+                pdf.set_text_color(80, 80, 80)
+                date_width = 35
+                pdf.cell(date_width, 5, dates, ln=False)
+                
+                pdf.set_font("Times", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                pdf.cell(0, 5, f"{title}, {company}", ln=True)
+                
+                if location:
+                    pdf.set_x(pdf.l_margin + date_width)
+                    pdf.set_font("Times", "I", 9)
+                    pdf.set_text_color(100, 100, 100)
+                    pdf.cell(0, 4, location, ln=True)
+                
+                # Bullets
+                bullets = exp.get("bullets", [])
+                for bullet in bullets[:5]:
+                    pdf.set_x(pdf.l_margin + date_width)
+                    pdf.set_font("Times", "", 10)
+                    pdf.set_text_color(40, 40, 40)
+                    pdf.multi_cell(0, 5, f"- {self._clean_text(bullet)}")
+                pdf.ln(2)
+        
+        # EDUCATION
+        education = data.get("education", [])
+        if education:
+            self._add_classic_section(pdf, "EDUCATION")
+            for edu in education:
+                dates = self._clean_text(edu.get("dates", ""))
+                degree = self._clean_text(edu.get("degree", ""))
+                school = self._clean_text(edu.get("school", ""))
+                
+                pdf.set_font("Times", "I", 9)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(35, 5, dates, ln=False)
+                
+                pdf.set_font("Times", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                pdf.cell(0, 5, f"{degree}, {school}", ln=True)
+                pdf.ln(1)
+        
+        # SKILLS
+        skills = data.get("skills", [])
+        if skills:
+            self._add_classic_section(pdf, "SKILLS")
+            pdf.set_font("Times", "", 10)
+            pdf.set_text_color(40, 40, 40)
+            skills_text = ", ".join([self._clean_text(s) for s in skills[:20]])
+            pdf.multi_cell(0, 5, skills_text)
+        
+        return pdf.output()
+
+    def generate_traditional(self, data: dict) -> bytes:
+        """Generate PDF using Traditional template matching Howard Jones design."""
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        
+        personal_info = data.get("personal_info", {})
+        name = self._clean_text(personal_info.get("name", "Your Name"))
+        title = self._clean_text(personal_info.get("title", ""))
+        
+        page_width = pdf.w - pdf.l_margin - pdf.r_margin
+        
+        # === HEADER ===
+        # Name - Large, centered, uppercase
+        pdf.set_font("Times", "B", 24)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 10, name.upper(), ln=True, align="C")
+        
+        # Title/Profession - Centered, italic
+        if title:
+            pdf.set_font("Times", "I", 11)
+            pdf.set_text_color(60, 60, 60)
+            pdf.cell(0, 5, title, ln=True, align="C")
+        
+        # Address line
+        address = personal_info.get("location", "")
+        if address:
+            pdf.set_font("Times", "", 9)
+            pdf.set_text_color(60, 60, 60)
+            pdf.cell(0, 5, self._clean_text(address), ln=True, align="C")
+        
+        pdf.ln(3)
+        
+        # Phone (left) and Email (right) on same line
+        phone = personal_info.get("phone", "")
+        email = personal_info.get("email", "")
+        
+        if phone or email:
+            pdf.set_font("Times", "", 9)
+            pdf.set_text_color(60, 60, 60)
+            y_pos = pdf.get_y()
+            
+            if phone:
+                pdf.set_xy(pdf.l_margin, y_pos)
+                pdf.cell(page_width / 2, 5, self._clean_text(phone), align="L")
+            
+            if email:
+                pdf.set_xy(pdf.l_margin + page_width / 2, y_pos)
+                pdf.cell(page_width / 2, 5, self._clean_text(email), align="R")
+            
+            pdf.ln(8)
+        else:
+            pdf.ln(5)
+        
+        # === PROFILE ===
+        summary = data.get("summary", "")
+        if summary:
+            self._add_traditional_section_header(pdf, "PROFILE")
+            pdf.set_font("Times", "I", 10)
+            pdf.set_text_color(40, 40, 40)
+            pdf.multi_cell(0, 5, self._clean_text(summary), align="C")
+            pdf.ln(5)
+        
+        # === EMPLOYMENT HISTORY ===
+        experience = data.get("experience", [])
+        if experience:
+            self._add_traditional_section_header(pdf, "EMPLOYMENT HISTORY")
+            
+            for exp in experience:
+                exp_title = self._clean_text(exp.get("title", ""))
+                company = self._clean_text(exp.get("company", ""))
+                dates = self._clean_text(exp.get("dates", ""))
+                location = self._clean_text(exp.get("location", ""))
+                
+                # Diamond bullet + Title, Company ... Date (right)
+                pdf.set_font("Times", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                
+                # Use simple layout to avoid width issues
+                title_line = f"{exp_title}, {company}"
+                if len(title_line) > 50:
+                    title_line = title_line[:47] + "..."
+                
+                pdf.set_x(pdf.l_margin)
+                pdf.cell(page_width * 0.65, 5, title_line, ln=False)
+                
+                pdf.set_font("Times", "", 10)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(page_width * 0.35, 5, dates, ln=True, align="R")
+                
+                if location:
+                    pdf.set_font("Times", "I", 9)
+                    pdf.set_text_color(100, 100, 100)
+                    pdf.cell(0, 4, location, ln=True)
+                
+                # Bullets
+                bullets = exp.get("bullets", [])
+                for bullet in bullets[:4]:
+                    clean_bullet = self._clean_text(bullet)
+                    if len(clean_bullet) > 100:
+                        clean_bullet = clean_bullet[:97] + "..."
+                    pdf.set_font("Times", "", 9)
+                    pdf.set_text_color(40, 40, 40)
+                    pdf.set_x(pdf.l_margin + 5)
+                    pdf.multi_cell(page_width - 10, 4, f"- {clean_bullet}")
+                
+                pdf.ln(3)
+        
+        # === EDUCATION ===
+        education = data.get("education", [])
+        if education:
+            self._add_traditional_section_header(pdf, "EDUCATION")
+            
+            for edu in education:
+                school = self._clean_text(edu.get("school", ""))
+                degree = self._clean_text(edu.get("degree", ""))
+                dates = self._clean_text(edu.get("dates", ""))
+                
+                if len(school) > 45:
+                    school = school[:42] + "..."
+                
+                pdf.set_font("Times", "B", 11)
+                pdf.set_text_color(0, 0, 0)
+                pdf.cell(page_width * 0.65, 5, school, ln=False)
+                
+                pdf.set_font("Times", "", 10)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(page_width * 0.35, 5, dates, ln=True, align="R")
+                
+                if degree:
+                    pdf.set_font("Times", "I", 10)
+                    pdf.set_text_color(60, 60, 60)
+                    pdf.cell(0, 5, degree, ln=True)
+                
+                pdf.ln(2)
+        
+        # === SKILLS ===
+        skills = data.get("skills", [])
+        skills_dict = data.get("skills_dict", {})
+        
+        if skills or skills_dict:
+            self._add_traditional_section_header(pdf, "SKILLS")
+            
+            # If we have categorized skills, display in 2 columns
+            if skills_dict and isinstance(skills_dict, dict) and len(skills_dict) > 1:
+                skill_items = list(skills_dict.items())[:6]  # Max 6 categories
+                pdf.set_font("Times", "", 9)
+                pdf.set_text_color(40, 40, 40)
+                
+                col_width = page_width / 2 - 5
+                y_start = pdf.get_y()
+                max_y = y_start
+                
+                for i, (cat, skill_list) in enumerate(skill_items):
+                    col = i % 2
+                    if i > 0 and col == 0:
+                        y_start = max_y + 3
+                    
+                    x_pos = pdf.l_margin + (col * (col_width + 10))
+                    pdf.set_xy(x_pos, y_start if col == 0 else pdf.get_y())
+                    
+                    cat_clean = self._clean_text(str(cat))[:20]
+                    skills_str = ", ".join([self._clean_text(str(s))[:15] for s in (skill_list if isinstance(skill_list, list) else [skill_list])[:3]])
+                    
+                    pdf.set_font("Times", "B", 9)
+                    pdf.cell(col_width, 4, cat_clean, ln=True)
+                    pdf.set_x(x_pos)
+                    pdf.set_font("Times", "", 9)
+                    pdf.cell(col_width, 4, skills_str, ln=True)
+                    
+                    max_y = max(max_y, pdf.get_y())
+                
+                pdf.set_y(max_y)
+            else:
+                # Simple list
+                pdf.set_font("Times", "", 10)
+                pdf.set_text_color(40, 40, 40)
+                skills_text = ", ".join([self._clean_text(str(s))[:30] for s in skills[:15]])
+                pdf.multi_cell(0, 5, skills_text)
+            
+            pdf.ln(3)
+        
+        # === CERTIFICATIONS/PROGRAMS ===
+        programs = data.get("programs", data.get("certifications", []))
+        if programs:
+            self._add_traditional_section_header(pdf, "CERTIFICATIONS")
+            for prog in programs[:3]:
+                if isinstance(prog, dict):
+                    prog_name = self._clean_text(prog.get("name", str(prog)))
+                else:
+                    prog_name = self._clean_text(str(prog))
+                if len(prog_name) > 60:
+                    prog_name = prog_name[:57] + "..."
+                pdf.set_font("Times", "", 10)
+                pdf.set_text_color(40, 40, 40)
+                pdf.cell(0, 5, f"- {prog_name}", ln=True)
+        
+        return pdf.output()
+
+    def _add_traditional_section_header(self, pdf: FPDF, title: str):
+        """Add traditional section header with centered box and extending lines."""
+        page_width = pdf.w - pdf.l_margin - pdf.r_margin
+        
+        # Calculate box dimensions
+        pdf.set_font("Times", "B", 11)
+        title_width = pdf.get_string_width(title) + 20  # padding
+        box_x = pdf.l_margin + (page_width - title_width) / 2
+        y_pos = pdf.get_y()
+        box_height = 7
+        
+        # Draw extending lines on both sides
+        pdf.set_draw_color(0, 0, 0)
+        line_y = y_pos + box_height / 2
+        
+        # Left line
+        pdf.line(pdf.l_margin, line_y, box_x, line_y)
+        # Right line  
+        pdf.line(box_x + title_width, line_y, pdf.w - pdf.r_margin, line_y)
+        
+        # Draw rounded rectangle (simulated with regular rect)
+        pdf.set_fill_color(255, 255, 255)
+        pdf.rect(box_x, y_pos, title_width, box_height, style="FD")
+        
+        # Title text centered in box
+        pdf.set_xy(box_x, y_pos + 1)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(title_width, box_height - 2, title, align="C")
+        
+        pdf.set_y(y_pos + box_height + 3)
+
+    def _add_classic_section(self, pdf: FPDF, title: str):
+        """Add a classic section header with underline."""
+        pdf.set_font("Times", "B", 11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 6, title.upper(), ln=True)
+        pdf.set_draw_color(0, 0, 0)
+        pdf.line(pdf.l_margin, pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
+        pdf.ln(3)
+
     def _add_section_header(self, pdf: FPDF, title: str):
         """Add a section header with gray background."""
         pdf.set_font("Helvetica", "B", 12)
@@ -367,11 +708,13 @@ class PDFGenerator:
             # Normalize data
             normalized_data = self._normalize_resume_data(resume_data)
             
-            # Use fpdf2 professional template by default
-            if theme == "professional" or theme == "modern":
-                return self.generate_professional(normalized_data)
+            # Route to appropriate template generator
+            if theme == "classic":
+                return self.generate_classic(normalized_data)
+            elif theme == "traditional":
+                return self.generate_traditional(normalized_data)
             else:
-                # For other themes, use fpdf2 professional as fallback
+                # Default to professional template
                 return self.generate_professional(normalized_data)
                 
         except Exception as e:

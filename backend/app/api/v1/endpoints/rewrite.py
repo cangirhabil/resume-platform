@@ -109,7 +109,7 @@ async def start_rewrite(
     template = request_body.template or "modern"
     
     # Validate template
-    valid_templates = ["professional", "modern", "classic", "minimal"]
+    valid_templates = ["professional", "modern", "classic", "traditional", "minimal"]
     if template not in valid_templates:
         template = "professional"
     
